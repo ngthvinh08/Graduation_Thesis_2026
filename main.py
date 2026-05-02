@@ -21,7 +21,7 @@ from video.frame_processor import MacroblockAnalyzer
 from optimization.uav_channel_model import compute_channels_gain, generate_trajectories
 from optimization.sca_optimizer import run_sca
 from optimization.qoe_fairness_model import compute_qoe
-from visualization.visualize import plot_results
+from visualization.visualize import plot_results, plot_scheme_results
 
 # Thư mục lưu kết quả
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -264,8 +264,10 @@ def main():
     psnr_s1_sca = qoe_data['PSNR_s1']
     psnr_s2_sca = qoe_data['PSNR_s2']
     
-    res_wsum = run_sca(g_p, g_s1, g_s2, alpha_frames, gamma_frames, mode='wsum')
-    res_maxmin = run_sca(g_p, g_s1, g_s2, alpha_frames, gamma_frames, mode='maxmin')
+    res_wsum = run_sca(g_p, g_s1, g_s2, alpha_frames, gamma_frames, mode='wsum', scheme='rsma')
+    res_maxmin = run_sca(g_p, g_s1, g_s2, alpha_frames, gamma_frames, mode='maxmin', scheme='rsma')
+    res_rsma_scheme = run_sca(g_p, g_s1, g_s2, alpha_frames, gamma_frames, mode='wsum', scheme='rsma')
+    res_noma_scheme = run_sca(g_p, g_s1, g_s2, alpha_frames, gamma_frames, mode='wsum', scheme='noma')
     
     # ========== PHASE 5: Results Summary ==========
     print("\n" + "=" * 70)
@@ -286,11 +288,40 @@ def main():
     
     for name, v1, v2 in metrics:
         print(f"{name:<25} {v1:>15.3f} {v2:>15.3f}")
+
+    print("\n" + "=" * 70)
+    print("SCHEME COMPARISON (W-SUM OBJECTIVE)")
+    print("=" * 70)
+    print(f"{'Metric':<25} {'CR-RSMA':>15} {'CR-NOMA':>15}")
+    print("-" * 55)
+
+    scheme_metrics = [
+        ('PSNR_PU (dB)', res_rsma_scheme['PSNR_p'].mean(), res_noma_scheme['PSNR_p'].mean()),
+        ('PSNR_SU_avg (dB)',
+         (res_rsma_scheme['PSNR_s1'].mean() + res_rsma_scheme['PSNR_s2'].mean()) / 2,
+         (res_noma_scheme['PSNR_s1'].mean() + res_noma_scheme['PSNR_s2'].mean()) / 2),
+        ('QoE_PU', res_rsma_scheme['QoE_p'].mean(), res_noma_scheme['QoE_p'].mean()),
+        ('QoE_SU_avg',
+         (res_rsma_scheme['QoE_s1'].mean() + res_rsma_scheme['QoE_s2'].mean()) / 2,
+         (res_noma_scheme['QoE_s1'].mean() + res_noma_scheme['QoE_s2'].mean()) / 2),
+        ('Fairness(SU)', np.mean(res_rsma_scheme['fair_hist']), np.mean(res_noma_scheme['fair_hist'])),
+        ('Objective', res_rsma_scheme['obj_hist'][-1], res_noma_scheme['obj_hist'][-1]),
+    ]
+
+    for name, v1, v2 in scheme_metrics:
+        print(f"{name:<25} {v1:>15.3f} {v2:>15.3f}")
     
     # ========== PHASE 6: Visualization ==========
     print("\n[Generating plots...]")
     save_path = os.path.join(RESULTS_DIR, 'cr_rsma_video_1pu_2su.png')
     plot_results(res_wsum, res_maxmin, save_path=save_path)
+    scheme_save_path = os.path.join(RESULTS_DIR, 'cr_rsma_vs_noma_video_1pu_2su.png')
+    plot_scheme_results(
+        res_rsma_scheme,
+        res_noma_scheme,
+        'CR-RSMA vs. CR-NOMA for Video Uplink QoE',
+        scheme_save_path
+    )
     
     # Save video encoding stats
     video_stats_path = os.path.join(RESULTS_DIR, 'video_encoding_stats.txt')
@@ -309,9 +340,36 @@ def main():
             psnr = np.mean(encoding_data['psnr_per_layer'][:, l])
             f.write(f"  Layer {l}: {psnr:.2f} dB\n")
     
+    # ========== PHASE 7: Summary Table ==========
+    summary_md = f"""
+### Kết quả mô phỏng (KAPPA = {KAPPA}):
+
+| Chỉ số | Weighted-Sum (Hiệu suất) | Max-Min (Công bằng) |
+| :--- | :--- | :--- |
+| **PSNR PU** | {res_wsum['PSNR_p'].mean():.3f} dB | {res_maxmin['PSNR_p'].mean():.3f} dB |
+| **PSNR SU1** | {res_wsum['PSNR_s1'].mean():.3f} dB | {res_maxmin['PSNR_s1'].mean():.3f} dB |
+| **PSNR SU2** | {res_wsum['PSNR_s2'].mean():.3f} dB | {res_maxmin['PSNR_s2'].mean():.3f} dB |
+| **Jain's Fairness Index** | {np.mean(res_wsum['fair_hist']):.3f} | {np.mean(res_maxmin['fair_hist']):.3f} |
+
+### So sánh cơ chế truy nhập (W-Sum):
+
+| Chỉ số | CR-RSMA | CR-NOMA |
+| :--- | :--- | :--- |
+| **PSNR PU** | {res_rsma_scheme['PSNR_p'].mean():.3f} dB | {res_noma_scheme['PSNR_p'].mean():.3f} dB |
+| **PSNR SU trung bình** | {((res_rsma_scheme['PSNR_s1'].mean() + res_rsma_scheme['PSNR_s2'].mean()) / 2):.3f} dB | {((res_noma_scheme['PSNR_s1'].mean() + res_noma_scheme['PSNR_s2'].mean()) / 2):.3f} dB |
+| **QoE PU** | {res_rsma_scheme['QoE_p'].mean():.3f} | {res_noma_scheme['QoE_p'].mean():.3f} |
+| **QoE SU trung bình** | {((res_rsma_scheme['QoE_s1'].mean() + res_rsma_scheme['QoE_s2'].mean()) / 2):.3f} | {((res_noma_scheme['QoE_s1'].mean() + res_noma_scheme['QoE_s2'].mean()) / 2):.3f} |
+| **Jain's Fairness Index** | {np.mean(res_rsma_scheme['fair_hist']):.3f} | {np.mean(res_noma_scheme['fair_hist']):.3f} |
+"""
+    print(summary_md)
+    with open(os.path.join(RESULTS_DIR, 'last_summary.md'), 'w', encoding='utf-8') as f:
+        f.write(summary_md)
+
     print(f"\n✓ Hoàn thành!")
     print(f"  Plot saved: {save_path}")
+    print(f"  Scheme plot: {scheme_save_path}")
     print(f"  Video stats: {video_stats_path}")
+    print(f"  Summary MD: {os.path.join(RESULTS_DIR, 'last_summary.md')}")
 
 
 if __name__ == '__main__':
