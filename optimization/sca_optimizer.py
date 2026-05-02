@@ -16,25 +16,76 @@ from .qoe_fairness_model import (compute_qoe, jain_fairness, max_min_fairness, o
 # ============================================================
 # HELPER FUNCTIONS
 # ============================================================
-def compute_rates(P_c, P_p, P_s1, P_s2, g_p, g_s1, g_s2):
-    """Tính tốc độ RSMA chuẩn (Common + Private) — Vectorized."""
-    SIGMA2 = 1e-3
+def compute_rates_rsma(P_s1c, P_s1p, P_s2c, P_s2p, P_pu, g_s1, g_s2, g_p):
+    """Tính tốc độ uplink CR-RSMA (Common -> PU -> Private) — Vectorized."""
     sensing_eff = 0.92 
-    gp_safe, gs1_safe, gs2_safe = g_p + 1e-10, g_s1 + 1e-10, g_s2 + 1e-10
+    gs1_safe, gs2_safe, gp_safe = g_s1 + 1e-10, g_s2 + 1e-10, g_p + 1e-10
     
-    gamma_pc = P_c * gp_safe / ((P_p + P_s1 + P_s2) * gp_safe + SIGMA2)
-    gamma_s1c = P_c * gs1_safe / ((P_p + P_s1 + P_s2) * gs1_safe + SIGMA2)
-    gamma_s2c = P_c * gs2_safe / ((P_p + P_s1 + P_s2) * gs2_safe + SIGMA2)
+    # 1. Decode SU1-Common (W1,1)
+    # Interference: SU1-Private, SU2-Common, SU2-Private, PU
+    gamma_s1c = (P_s1c * gs1_safe) / (P_s1p * gs1_safe + P_s2c * gs2_safe + P_s2p * gs2_safe + P_pu * gp_safe + SIGMA2)
+    R_s1c = B * np.log2(1 + gamma_s1c) * sensing_eff
     
-    gamma_c_min = np.minimum(np.minimum(gamma_pc, gamma_s1c), gamma_s2c)
-    R_c = B * np.log2(1 + gamma_c_min) * sensing_eff
-    C_p, C_s1, C_s2 = R_c * 0.4, R_c * 0.3, R_c * 0.3
+    # 2. Decode SU2-Common (W2,1)
+    # Interference: SU1-Private, SU2-Private, PU
+    gamma_s2c = (P_s2c * gs2_safe) / (P_s1p * gs1_safe + P_s2p * gs2_safe + P_pu * gp_safe + SIGMA2)
+    R_s2c = B * np.log2(1 + gamma_s2c) * sensing_eff
     
-    R_pp = B * np.log2(1 + P_p * gp_safe / ((P_s1 + P_s2) * gp_safe + SIGMA2)) * sensing_eff
-    R_s1p = B * np.log2(1 + P_s1 * gs1_safe / ((P_p + P_s2) * gs1_safe + SIGMA2)) * sensing_eff
-    R_s2p = B * np.log2(1 + P_s2 * gs2_safe / ((P_p + P_s1) * gs2_safe + SIGMA2)) * sensing_eff
+    # 3. Decode PU (WK)
+    # Interference: SU1-Private, SU2-Private
+    gamma_pu = (P_pu * gp_safe) / (P_s1p * gs1_safe + P_s2p * gs2_safe + SIGMA2)
+    R_pu = B * np.log2(1 + gamma_pu) * sensing_eff
     
-    return C_p + R_pp, C_s1 + R_s1p, C_s2 + R_s2p, R_c
+    # 4. Decode SU1-Private (W1,2)
+    # Interference: SU2-Private
+    gamma_s1p = (P_s1p * gs1_safe) / (P_s2p * gs2_safe + SIGMA2)
+    R_s1p = B * np.log2(1 + gamma_s1p) * sensing_eff
+    
+    # 5. Decode SU2-Private (W2,2)
+    # Interference: Noise
+    gamma_s2p = (P_s2p * gs2_safe) / SIGMA2
+    R_s2p = B * np.log2(1 + gamma_s2p) * sensing_eff
+    
+    return R_pu, R_s1c + R_s1p, R_s2c + R_s2p
+
+
+def compute_rates_noma(P_s1c, P_s1p, P_s2c, P_s2p, P_pu, g_s1, g_s2, g_p):
+    """Tính tốc độ uplink CR-NOMA với SIC thích ứng theo kênh tức thời."""
+    sensing_eff = 0.92
+    gs1_safe, gs2_safe, gp_safe = g_s1 + 1e-10, g_s2 + 1e-10, g_p + 1e-10
+
+    # Với NOMA, toàn bộ công suất SU được gộp vào một luồng duy nhất.
+    P_s1 = P_s1c + P_s1p
+    P_s2 = P_s2c + P_s2p
+
+    # PU vẫn được ưu tiên theo CR, nên chỉ chịu nhiễu từ hai SU.
+    gamma_pu = (P_pu * gp_safe) / (P_s1 * gs1_safe + P_s2 * gs2_safe + SIGMA2)
+    R_pu = B * np.log2(1 + gamma_pu) * sensing_eff
+
+    # SIC order: user có received power mạnh hơn được decode sau và không bị user còn lại gây nhiễu.
+    recv_s1 = P_s1 * gs1_safe
+    recv_s2 = P_s2 * gs2_safe
+    s1_stronger = recv_s1 >= recv_s2
+
+    gamma_s1_weak = recv_s1 / (recv_s2 + P_pu * gp_safe + SIGMA2)
+    gamma_s2_weak = recv_s2 / (recv_s1 + P_pu * gp_safe + SIGMA2)
+    gamma_s1_strong = recv_s1 / (P_pu * gp_safe + SIGMA2)
+    gamma_s2_strong = recv_s2 / (P_pu * gp_safe + SIGMA2)
+
+    gamma_s1 = np.where(s1_stronger, gamma_s1_strong, gamma_s1_weak)
+    gamma_s2 = np.where(s1_stronger, gamma_s2_weak, gamma_s2_strong)
+
+    R_s1 = B * np.log2(1 + gamma_s1) * sensing_eff
+    R_s2 = B * np.log2(1 + gamma_s2) * sensing_eff
+    return R_pu, R_s1, R_s2
+
+
+def compute_rates(P_s1c, P_s1p, P_s2c, P_s2p, P_pu, g_s1, g_s2, g_p, scheme='rsma'):
+    if scheme == 'rsma':
+        return compute_rates_rsma(P_s1c, P_s1p, P_s2c, P_s2p, P_pu, g_s1, g_s2, g_p)
+    if scheme == 'noma':
+        return compute_rates_noma(P_s1c, P_s1p, P_s2c, P_s2p, P_pu, g_s1, g_s2, g_p)
+    raise ValueError(f"Unsupported access scheme: {scheme}")
 
 def compute_svc_layers(R_tot):
     R_tot = np.atleast_1d(R_tot)
@@ -46,34 +97,24 @@ def compute_svc_layers(R_tot):
     return k.astype(int)
 
 def precalculate_rdo_constants(alpha_frames, gamma_frames):
-    """
-    Tính hằng số C_rdo cho mỗi khung hình:
-    C_rdo = (Σ α^(2/3) * γ^(1/3))^3 / M
-    """
     alpha_mat = np.array(alpha_frames)
     gamma_mat = np.array(gamma_frames)
     m_blocks = np.prod(alpha_mat.shape[1:])
-    
     term = (alpha_mat**(2/3)) * (gamma_mat**(1/3))
     sum_term = np.sum(term, axis=tuple(range(1, term.ndim)))
-    c_rdo = (sum_term ** 3) / m_blocks
-    return c_rdo
+    return (sum_term ** 3) / m_blocks
 
 def compute_psnr_from_D(D):
     return 10 * np.log10(255**2 / np.maximum(D, 1e-10))
 
 # ============================================================
-# MAIN EVALUATION PIPELINE — Super Fast
+# MAIN EVALUATION PIPELINE
 # ============================================================
-def evaluate_all(P_c, P_p, P_s1, P_s2, g_p, g_s1, g_s2, c_rdo_arr, mode):
-    n_slots = len(g_p)
-    R_p, R_s1, R_s2, _ = compute_rates(P_c, P_p, P_s1, P_s2, g_p, g_s1, g_s2)
+def evaluate_all(P_s1c, P_s1p, P_s2c, P_s2p, P_pu, g_s1, g_s2, g_p, c_rdo_arr, mode, scheme='rsma'):
+    R_p, R_s1, R_s2 = compute_rates(P_s1c, P_s1p, P_s2c, P_s2p, P_pu, g_s1, g_s2, g_p, scheme=scheme)
     
-    k_p = compute_svc_layers(R_p)
-    k_s1 = compute_svc_layers(R_s1)
-    k_s2 = compute_svc_layers(R_s2)
+    k_p, k_s1, k_s2 = compute_svc_layers(R_p), compute_svc_layers(R_s1), compute_svc_layers(R_s2)
 
-    # Algebraic RDO: D = C_rdo / R_th^2
     D_p = c_rdo_arr / (np.maximum(R_p, 1e2)**2)
     D_s1 = c_rdo_arr / (np.maximum(R_s1, 1e2)**2)
     D_s2 = c_rdo_arr / (np.maximum(R_s2, 1e2)**2)
@@ -81,10 +122,10 @@ def evaluate_all(P_c, P_p, P_s1, P_s2, g_p, g_s1, g_s2, c_rdo_arr, mode):
     PSNR_p, PSNR_s1, PSNR_s2 = compute_psnr_from_D(D_p), compute_psnr_from_D(D_s1), compute_psnr_from_D(D_s2)
     PSNR_p[k_p == 0], PSNR_s1[k_s1 == 0], PSNR_s2[k_s2 == 0] = 0.0, 0.0, 0.0
 
-    # QoE & Fairness
-    P_tot_p = P_p + P_c*0.4 + P_ENC + P_FLY
-    P_tot_s1 = P_s1 + P_c*0.3 + P_ENC + P_FLY
-    P_tot_s2 = P_s2 + P_c*0.3 + P_ENC + P_FLY
+    # P_tot for UL: User consumes its own Transmit power
+    P_tot_p = P_pu + P_ENC + P_FLY
+    P_tot_s1 = P_s1c + P_s1p + P_ENC + P_FLY
+    P_tot_s2 = P_s2c + P_s2p + P_ENC + P_FLY
 
     QoE_p = compute_qoe(PSNR_p, P_tot_p, k_layers=k_p)
     QoE_s1 = compute_qoe(PSNR_s1, P_tot_s1, k_layers=k_s1)
@@ -102,53 +143,63 @@ def evaluate_all(P_c, P_p, P_s1, P_s2, g_p, g_s1, g_s2, c_rdo_arr, mode):
 # ============================================================
 # OPTIMIZATION LOOP
 # ============================================================
-def update_resource_allocation(P_c, P_p, P_s1, P_s2, g_p, g_s1, g_s2, c_rdo_arr, mode):
+def update_resource_allocation(P_s1c, P_s1p, P_s2c, P_s2p, P_pu, g_s1, g_s2, g_p, c_rdo_arr, mode, scheme='rsma'):
     n_slots = len(g_p)
-    P_MAX = P_P_MAX + P_S_MAX
     
     def neg_obj(x):
-        x_clipped = np.clip(x, 0, P_MAX)
-        Pc, Pp, Ps1, Ps2 = x_clipped[0*n_slots:1*n_slots], x_clipped[1*n_slots:2*n_slots], x_clipped[2*n_slots:3*n_slots], x_clipped[3*n_slots:4*n_slots]
-        res = evaluate_all(Pc, Pp, Ps1, Ps2, g_p, g_s1, g_s2, c_rdo_arr, mode)
+        P_s1c_n = np.clip(x[0*n_slots:1*n_slots], 0, P_S_MAX)
+        P_s1p_n = np.clip(x[1*n_slots:2*n_slots], 0, P_S_MAX)
+        P_s2c_n = np.clip(x[2*n_slots:3*n_slots], 0, P_S_MAX)
+        P_s2p_n = np.clip(x[3*n_slots:4*n_slots], 0, P_S_MAX)
+        P_pu_n  = np.clip(x[4*n_slots:5*n_slots], 0, P_P_MAX)
+        
+        res = evaluate_all(P_s1c_n, P_s1p_n, P_s2c_n, P_s2p_n, P_pu_n, g_s1, g_s2, g_p, c_rdo_arr, mode, scheme=scheme)
         return -res['obj']
 
     cons = [
-        {'type': 'ineq', 'fun': lambda x: P_MAX - (x[0*n_slots:1*n_slots] + x[1*n_slots:2*n_slots] + x[2*n_slots:3*n_slots] + x[3*n_slots:4*n_slots])},
-        {'type': 'ineq', 'fun': lambda x: P_MAX * n_slots * 0.8 - np.sum(x)}
+        {'type': 'ineq', 'fun': lambda x: P_S_MAX - (x[0*n_slots:1*n_slots] + x[1*n_slots:2*n_slots])}, 
+        {'type': 'ineq', 'fun': lambda x: P_S_MAX - (x[2*n_slots:3*n_slots] + x[3*n_slots:4*n_slots])}, 
+        {'type': 'ineq', 'fun': lambda x: P_P_MAX - x[4*n_slots:5*n_slots]} 
     ]
     
-    x0 = np.concatenate([P_c, P_p, P_s1, P_s2])
+    x0 = np.concatenate([P_s1c, P_s1p, P_s2c, P_s2p, P_pu])
     res = minimize(neg_obj, x0, method='SLSQP', constraints=cons, options={'maxiter': 20, 'ftol': 1e-4})
     
     x = res.x if res.success else x0
-    return (np.clip(x[0*n_slots:1*n_slots], 1e-6, P_MAX),
-            np.clip(x[1*n_slots:2*n_slots], 1e-6, P_MAX),
-            np.clip(x[2*n_slots:3*n_slots], 1e-6, P_MAX),
-            np.clip(x[3*n_slots:4*n_slots], 1e-6, P_MAX), res.success)
+    return (np.clip(x[0*n_slots:1*n_slots], 1e-6, P_S_MAX),
+            np.clip(x[1*n_slots:2*n_slots], 1e-6, P_S_MAX),
+            np.clip(x[2*n_slots:3*n_slots], 1e-6, P_S_MAX),
+            np.clip(x[3*n_slots:4*n_slots], 1e-6, P_S_MAX),
+            np.clip(x[4*n_slots:5*n_slots], 1e-6, P_P_MAX), res.success)
 
-def run_sca(g_p, g_s1, g_s2, alpha_frames=None, gamma_frames=None, mode='wsum'):
+def run_sca(g_p, g_s1, g_s2, alpha_frames=None, gamma_frames=None, mode='wsum', scheme='rsma'):
     n_slots = len(g_p)
     if alpha_frames is None: alpha_frames = [ALPHA_RD] * n_slots
     if gamma_frames is None: gamma_frames = [GAMMA_RD] * n_slots
 
-    # Pre-calculate RDO Constants (DO THIS ONCE)
-    print(f"  [PRE] Pre-calculating algebraic RDO constants for {n_slots} slots...")
+    print(f"  [PRE] Pre-calculating algebraic RDO constants for {n_slots} slots ({scheme.upper()})...")
     c_rdo_arr = precalculate_rdo_constants(alpha_frames, gamma_frames)
 
-    P_c, P_p, P_s1, P_s2 = np.ones(n_slots)*0.2, np.ones(n_slots)*0.4, np.ones(n_slots)*0.1, np.ones(n_slots)*0.1
+    P_s1c, P_s1p = np.ones(n_slots)*0.2, np.ones(n_slots)*0.3
+    P_s2c, P_s2p = np.ones(n_slots)*0.2, np.ones(n_slots)*0.3
+    P_pu = np.ones(n_slots)*0.5
+    
     best_res, obj_hist, fair_hist = {}, [], []
     
     for it in range(MAX_ITER):
-        res = evaluate_all(P_c, P_p, P_s1, P_s2, g_p, g_s1, g_s2, c_rdo_arr, mode)
+        res = evaluate_all(P_s1c, P_s1p, P_s2c, P_s2p, P_pu, g_s1, g_s2, g_p, c_rdo_arr, mode, scheme=scheme)
         obj_hist.append(res['obj'])
         fair_hist.append(res['F'].mean())
         print(f"  Iter {it+1:2d}: Obj={res['obj']:10.3f}, PSNR_p={res['PSNR_p'].mean():5.1f}, Fair={res['F'].mean():.3f}")
         
-        P_c, P_p, P_s1, P_s2, success = update_resource_allocation(P_c, P_p, P_s1, P_s2, g_p, g_s1, g_s2, c_rdo_arr, mode)
+        P_s1c, P_s1p, P_s2c, P_s2p, P_pu, success = update_resource_allocation(
+            P_s1c, P_s1p, P_s2c, P_s2p, P_pu, g_s1, g_s2, g_p, c_rdo_arr, mode, scheme=scheme
+        )
         
         if it > 0 and abs(obj_hist[-1] - obj_hist[-2]) < TOL:
             print(f"  [CONVERGED] in {it+1} iterations")
             break
         best_res = res
 
-    return {**best_res, 'obj_hist': obj_hist, 'fair_hist': fair_hist, 'P_c': P_c, 'P_p': P_p, 'P_s1': P_s1, 'P_s2': P_s2}
+    return {**best_res, 'obj_hist': obj_hist, 'fair_hist': fair_hist, 
+            'P_s1c': P_s1c, 'P_s1p': P_s1p, 'P_s2c': P_s2c, 'P_s2p': P_s2p, 'P_pu': P_pu}
