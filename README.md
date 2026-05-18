@@ -1,69 +1,47 @@
-# Graduation Thesis 2026: CR-RSMA + UAV + QoE Fairness
+# CR-RSMA vs CR-NOMA Fairness Simulation
 
-**Author:** Nguyen Thanh Vinh  
-**Date:** May, 2026
+Simulation comparing **Cognitive Radio Rate-Splitting Multiple Access (CR-RSMA)** and **Cognitive Radio Non-Orthogonal Multiple Access (CR-NOMA)** for multimedia fairness optimization.
 
-## Overview
-This project implements an optimization framework for **Cognitive Radio Rate-Splitting Multiple Access (CR-RSMA)** networks assisted by **Unmanned Aerial Vehicles (UAVs)**. The goal is to maximize the **Quality of Experience (QoE)** and ensure **Fairness** for video streaming users employing **Scalable Video Coding (SVC)**.
+## Project Overview
 
-The system utilizes **Successive Convex Approximation (SCA)** to optimize power allocation, bitrate, and trajectory parameters under interference and resource constraints.
-
----
-
-## Key Features
-
-### 1. Scalable Video Coding (SVC)
-- Support for multiple video layers: **Base Layer (BL)** and **Enhancement Layers (EL)**.
-- Real-time frame processing and encoding analysis (PSNR, bitrate).
-- Adaptive layer selection based on channel conditions.
-
-### 2. CR-RSMA & Communication Model
-- Implementation of Rate-Splitting Multiple Access (RSMA) for enhanced spectral efficiency.
-- Cognitive Radio integration: Primary User (PU) protection and Secondary User (SU) opportunistic access.
-- Dynamic channel modeling for UAV mobility (LoS/NLoS components).
-
-### 3. Optimization Suite
-- **SCA Optimizer**: Solves non-convex resource allocation problems.
-- **Objective Functions**:
-  - **W-Sum**: Weighted Sum of QoE for maximum system utility.
-  - **Max-Min**: Fair allocation ensuring the minimum user performance is maximized.
-- **Fairness Metrics**: Jain’s Fairness Index integration.
-
-### 4. Visualization & Analytics
-- Automated plotting of PSNR, bitrates, and QoE over time.
-- Comparison of different optimization modes (W-Sum vs. Max-Min).
-- Video encoding statistics reporting.
-
----
-
-## 📁 Project Structure
-
-```text
-├── main.py                # Main entry point for simulation
-├── config.py              # System parameters and configuration
-├── video/                 # Video processing module
-│   ├── svc_encoder.py     # SVC layer management
-│   ├── video_input.py     # Opencv video reading utils
-│   └── frame_processor.py # Macroblock analysis
-├── optimization/          # Mathematical models
-│   ├── sca_optimizer.py   # Successive Convex Approximation logic
-│   ├── uav_channel_model.py # UAV trajectory and gains
-│   └── qoe_fairness_model.py # QoE and Fairness calculations
-├── visualization/         # Plotting utilities
-├── results/               # Output directory for plots and stats
-└── documents/             # Project documentation and references
-```
-
----
+- **System**: 1 Primary User (PU) + K Secondary Users (SUs) in underlay cognitive radio setup
+- **Objective**: Max-Min Fair (MMF) resource allocation maximizing minimum rate: max min_k R_k
+- **Video Codec**: Scalable Video Coding (SVC) with 4 layers (Base Layer + 3 Enhancement Layers)
+- **Video Format**: QCIF (176×144), 30 fps, GOP size 8
+- **Performance Metrics**: Shannon capacity (no finite block length), mapped to PSNR via SVC layers
 
 ## Configuration
-You can adjust system parameters in `config.py`, including:
-- Network bandwidth (`B`) and noise power (`SIGMA2`).
-- UAV power constraints (`P_S_MAX`, `P_FLY`).
-- SVC layer bitrates (`R_LAYER`).
-- QoE weights (`A_U`, `B_U`, `C_U`, etc.).
 
----
+Configure system parameters in [config.py](config.py):
+- **Video layers**: Bitrates per layer (kbps), PSNR thresholds
+- **Channel parameters**: SNR range, interference threshold (I_th)
+- **Simulation**: Monte Carlo realizations, fairness weights
 
-## Results Summary
-After execution, check `results/cr_rsma_video_1pu_2su.png` for performance visualizations and `results/video_encoding_stats.txt` for detailed metrics.
+## Simulation Parameters
+
+Defined in [main.py](main.py):
+- **SNR Range**: 0-30 dB (2 dB step)
+- **K Range** (# of SUs): 2, 3, 4, 5, 6
+- **Interference Threshold (I_th)**: 0.05–1.0 (15 points)
+- **Monte Carlo Runs**: 200 realizations per point
+
+## Results
+
+Simulation outputs saved to `sim_results.npz` containing:
+1. MMF objective vs SNR
+2. MMF objective vs I_th 
+3. MMF objective vs number of users (K)
+
+## Key Concepts
+
+- **SVC 4-Layer Structure**:
+  - BL (Base Layer): 71.38 kbps, PSNR 29.87 dB
+  - EL1, EL2, EL3 (Enhancement Layers): Incremental quality improvement up to PSNR 41.19 dB
+  
+- **Fairness**: Weighted fairness with w_p = w_s = 0.5 (equal PU/SU weights)
+
+## Usage
+
+Run simulation:
+```bash
+python main.py
