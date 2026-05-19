@@ -1,0 +1,10 @@
+#
+# Auto-generated description file
+#
+# Sequence Player ver 1.0.1
+#
+Type = yuv
+Width = 352
+Height = 288
+Frame = 30
+Framerate = 30.000000
