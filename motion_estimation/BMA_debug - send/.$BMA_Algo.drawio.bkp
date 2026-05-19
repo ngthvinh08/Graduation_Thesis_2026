@@ -1,0 +1,403 @@
+<mxfile host="65bd71144e">
+    <diagram id="dP0A-o1umtEAAmdx38qW" name="Page-1">
+        <mxGraphModel dx="1647" dy="3144" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" background="none" math="0" shadow="1">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="4" value="&lt;h2&gt;Flow of motion estimation&lt;/h2&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;" vertex="1" parent="1">
+                    <mxGeometry x="225.5" y="-2160" width="420" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="22" value="&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;Compute block difference&lt;/span&gt;&lt;br style=&quot;--tw-border-spacing-x: 0; --tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-gradient-from-position: ; --tw-gradient-via-position: ; --tw-gradient-to-position: ; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --tw-ring-color: rgb(59 130 246 / .5); --tw-ring-offset-shadow: 0 0 #0000; --tw-ring-shadow: 0 0 #0000; --tw-shadow: 0 0 #0000; --tw-shadow-colored: 0 0 #0000; --tw-blur: ; --tw-brightness: ; --tw-contrast: ; --tw-grayscale: ; --tw-hue-rotate: ; --tw-invert: ; --tw-saturate: ; --tw-sepia: ; --tw-drop-shadow: ; --tw-backdrop-blur: ; --tw-backdrop-brightness: ; --tw-backdrop-contrast: ; --tw-backdrop-grayscale: ; --tw-backdrop-hue-rotate: ; --tw-backdrop-invert: ; --tw-backdrop-opacity: ; --tw-backdrop-saturate: ; --tw-backdrop-sepia: ; --tw-contain-size: ; --tw-contain-layout: ; --tw-contain-paint: ; --tw-contain-style: ; box-sizing: border-box; border-width: 0px; border-style: solid; border-color: rgb(229, 231, 235); color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;for one candidate vector&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontSize=20;" vertex="1" parent="1">
+                    <mxGeometry x="375.5" y="-1710" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="7" value="&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;Start&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontSize=20;" vertex="1" parent="1">
+                    <mxGeometry x="368" y="-2110" width="120" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="33" value="" style="edgeStyle=none;html=1;" edge="1" parent="1" source="8" target="10">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="8" value="&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;Get macroblock position&lt;/span&gt;&lt;br style=&quot;--tw-border-spacing-x: 0; --tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-gradient-from-position: ; --tw-gradient-via-position: ; --tw-gradient-to-position: ; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --tw-ring-color: rgb(59 130 246 / .5); --tw-ring-offset-shadow: 0 0 #0000; --tw-ring-shadow: 0 0 #0000; --tw-shadow: 0 0 #0000; --tw-shadow-colored: 0 0 #0000; --tw-blur: ; --tw-brightness: ; --tw-contrast: ; --tw-grayscale: ; --tw-hue-rotate: ; --tw-invert: ; --tw-saturate: ; --tw-sepia: ; --tw-drop-shadow: ; --tw-backdrop-blur: ; --tw-backdrop-brightness: ; --tw-backdrop-contrast: ; --tw-backdrop-grayscale: ; --tw-backdrop-hue-rotate: ; --tw-backdrop-invert: ; --tw-backdrop-opacity: ; --tw-backdrop-saturate: ; --tw-backdrop-sepia: ; --tw-contain-size: ; --tw-contain-layout: ; --tw-contain-paint: ; --tw-contain-style: ; box-sizing: border-box; border-width: 0px; border-style: solid; border-color: rgb(229, 231, 235); color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;mx, my&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontSize=20;" vertex="1" parent="1">
+                    <mxGeometry x="368" y="-2070" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="10" value="&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;Compute start position of macroblock&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontSize=20;" vertex="1" parent="1">
+                    <mxGeometry x="368" y="-1990" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="11" value="&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;Initialize minimum DFD&lt;/span&gt;&lt;br style=&quot;--tw-border-spacing-x: 0; --tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-gradient-from-position: ; --tw-gradient-via-position: ; --tw-gradient-to-position: ; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --tw-ring-color: rgb(59 130 246 / .5); --tw-ring-offset-shadow: 0 0 #0000; --tw-ring-shadow: 0 0 #0000; --tw-shadow: 0 0 #0000; --tw-shadow-colored: 0 0 #0000; --tw-blur: ; --tw-brightness: ; --tw-contrast: ; --tw-grayscale: ; --tw-hue-rotate: ; --tw-invert: ; --tw-saturate: ; --tw-sepia: ; --tw-drop-shadow: ; --tw-backdrop-blur: ; --tw-backdrop-brightness: ; --tw-backdrop-contrast: ; --tw-backdrop-grayscale: ; --tw-backdrop-hue-rotate: ; --tw-backdrop-invert: ; --tw-backdrop-opacity: ; --tw-backdrop-saturate: ; --tw-backdrop-sepia: ; --tw-contain-size: ; --tw-contain-layout: ; --tw-contain-paint: ; --tw-contain-style: ; box-sizing: border-box; border-width: 0px; border-style: solid; border-color: rgb(229, 231, 235); color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;and best motion vector&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontSize=20;" vertex="1" parent="1">
+                    <mxGeometry x="368" y="-1900" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="12" value="&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;Search motion vectors&lt;/span&gt;&lt;br style=&quot;--tw-border-spacing-x: 0; --tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-gradient-from-position: ; --tw-gradient-via-position: ; --tw-gradient-to-position: ; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --tw-ring-color: rgb(59 130 246 / .5); --tw-ring-offset-shadow: 0 0 #0000; --tw-ring-shadow: 0 0 #0000; --tw-shadow: 0 0 #0000; --tw-shadow-colored: 0 0 #0000; --tw-blur: ; --tw-brightness: ; --tw-contrast: ; --tw-grayscale: ; --tw-hue-rotate: ; --tw-invert: ; --tw-saturate: ; --tw-sepia: ; --tw-drop-shadow: ; --tw-backdrop-blur: ; --tw-backdrop-brightness: ; --tw-backdrop-contrast: ; --tw-backdrop-grayscale: ; --tw-backdrop-hue-rotate: ; --tw-backdrop-invert: ; --tw-backdrop-opacity: ; --tw-backdrop-saturate: ; --tw-backdrop-sepia: ; --tw-contain-size: ; --tw-contain-layout: ; --tw-contain-paint: ; --tw-contain-style: ; box-sizing: border-box; border-width: 0px; border-style: solid; border-color: rgb(229, 231, 235); color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;in range&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontSize=20;" vertex="1" parent="1">
+                    <mxGeometry x="368" y="-1810" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="13" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="7" target="8">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="303" y="-1580" as="sourcePoint"/>
+                        <mxPoint x="353" y="-1630" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="14" value="" style="endArrow=classic;html=1;" edge="1" parent="1" source="8" target="10">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="448" y="-1980" as="sourcePoint"/>
+                        <mxPoint x="448" y="-1950" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="15" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="10" target="11">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="447" y="-1890" as="sourcePoint"/>
+                        <mxPoint x="447" y="-1860" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="17" value="" style="endArrow=classic;html=1;" edge="1" parent="1" source="11" target="12">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="447" y="-1800" as="sourcePoint"/>
+                        <mxPoint x="447" y="-1770" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="20" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="12" target="22">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="423" y="-1730" as="sourcePoint"/>
+                        <mxPoint x="363" y="-1620" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="24" value="&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;Is DFD smaller&lt;/span&gt;&lt;br style=&quot;--tw-border-spacing-x: 0; --tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-gradient-from-position: ; --tw-gradient-via-position: ; --tw-gradient-to-position: ; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --tw-ring-color: rgb(59 130 246 / .5); --tw-ring-offset-shadow: 0 0 #0000; --tw-ring-shadow: 0 0 #0000; --tw-shadow: 0 0 #0000; --tw-shadow-colored: 0 0 #0000; --tw-blur: ; --tw-brightness: ; --tw-contrast: ; --tw-grayscale: ; --tw-hue-rotate: ; --tw-invert: ; --tw-saturate: ; --tw-sepia: ; --tw-drop-shadow: ; --tw-backdrop-blur: ; --tw-backdrop-brightness: ; --tw-backdrop-contrast: ; --tw-backdrop-grayscale: ; --tw-backdrop-hue-rotate: ; --tw-backdrop-invert: ; --tw-backdrop-opacity: ; --tw-backdrop-saturate: ; --tw-backdrop-sepia: ; --tw-contain-size: ; --tw-contain-layout: ; --tw-contain-paint: ; --tw-contain-style: ; box-sizing: border-box; border-width: 0px; border-style: solid; border-color: rgb(229, 231, 235); color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;than current minimum&lt;/span&gt;" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="280.5" y="-1610" width="95" height="100" as="geometry"/>
+                </mxCell>
+                <mxCell id="25" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="22" target="24">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="428" y="-1700" as="sourcePoint"/>
+                        <mxPoint x="363" y="-1620" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="26" value="" style="endArrow=classic;html=1;exitX=0;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="24" target="31">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="338" y="-1560" as="sourcePoint"/>
+                        <mxPoint x="253" y="-1370" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="28" value="No" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="26">
+                    <mxGeometry x="0.0881" y="2" relative="1" as="geometry">
+                        <mxPoint y="1" as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="27" value="" style="endArrow=classic;html=1;exitX=1;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="24" target="30">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="314" y="-1435" as="sourcePoint"/>
+                        <mxPoint x="393" y="-1370" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="29" value="Yes" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="27">
+                    <mxGeometry x="0.1694" y="-4" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="30" value="&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;Update best motion vector&lt;/span&gt;&lt;br style=&quot;--tw-border-spacing-x: 0; --tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-gradient-from-position: ; --tw-gradient-via-position: ; --tw-gradient-to-position: ; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --tw-ring-color: rgb(59 130 246 / .5); --tw-ring-offset-shadow: 0 0 #0000; --tw-ring-shadow: 0 0 #0000; --tw-shadow: 0 0 #0000; --tw-shadow-colored: 0 0 #0000; --tw-blur: ; --tw-brightness: ; --tw-contrast: ; --tw-grayscale: ; --tw-hue-rotate: ; --tw-invert: ; --tw-saturate: ; --tw-sepia: ; --tw-drop-shadow: ; --tw-backdrop-blur: ; --tw-backdrop-brightness: ; --tw-backdrop-contrast: ; --tw-backdrop-grayscale: ; --tw-backdrop-hue-rotate: ; --tw-backdrop-invert: ; --tw-backdrop-opacity: ; --tw-backdrop-saturate: ; --tw-backdrop-sepia: ; --tw-contain-size: ; --tw-contain-layout: ; --tw-contain-paint: ; --tw-contain-style: ; box-sizing: border-box; border-width: 0px; border-style: solid; border-color: rgb(229, 231, 235); color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;and minimum DFD&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="403" y="-1460" width="130" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="31" value="&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;Try next candidate vector&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="148" y="-1460" width="120" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="32" value="&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;More candidate vectors&lt;/span&gt;" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="173" y="-1360" width="80" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="36" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="31" target="32">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="243" y="-1330" as="sourcePoint"/>
+                        <mxPoint x="293" y="-1380" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="37" value="" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;curved=1;" edge="1" parent="1" source="32" target="12">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="213" y="-1350" as="sourcePoint"/>
+                        <mxPoint x="653" y="-1320" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="703" y="-1320"/>
+                            <mxPoint x="703" y="-1780"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="39" value="Yes" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="37">
+                    <mxGeometry x="-0.7795" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="40" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="32" target="42">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="343" y="-1270" as="sourcePoint"/>
+                        <mxPoint x="213" y="-1240" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="41" value="No" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="40">
+                    <mxGeometry x="-0.0615" y="1" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="42" value="&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;Store motion vector&lt;/span&gt;&lt;br style=&quot;--tw-border-spacing-x: 0; --tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-gradient-from-position: ; --tw-gradient-via-position: ; --tw-gradient-to-position: ; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --tw-ring-color: rgb(59 130 246 / .5); --tw-ring-offset-shadow: 0 0 #0000; --tw-ring-shadow: 0 0 #0000; --tw-shadow: 0 0 #0000; --tw-shadow-colored: 0 0 #0000; --tw-blur: ; --tw-brightness: ; --tw-contrast: ; --tw-grayscale: ; --tw-hue-rotate: ; --tw-invert: ; --tw-saturate: ; --tw-sepia: ; --tw-drop-shadow: ; --tw-backdrop-blur: ; --tw-backdrop-brightness: ; --tw-backdrop-contrast: ; --tw-backdrop-grayscale: ; --tw-backdrop-hue-rotate: ; --tw-backdrop-invert: ; --tw-backdrop-opacity: ; --tw-backdrop-saturate: ; --tw-backdrop-sepia: ; --tw-contain-size: ; --tw-contain-layout: ; --tw-contain-paint: ; --tw-contain-style: ; box-sizing: border-box; border-width: 0px; border-style: solid; border-color: rgb(229, 231, 235); color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;for this macroblock&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="168" y="-1240" width="90" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="44" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="42" target="45">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="323" y="-1100" as="sourcePoint"/>
+                        <mxPoint x="213" y="-1160" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="45" value="&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;End&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="183" y="-1160" width="60" height="30" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+    <diagram id="RZF1vkqNIptqFLrMOWwF" name="Page-2">
+        <mxGraphModel dx="2306" dy="2422" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="xhIgXT-_JEAYLQntgUyN-1" value="&lt;h2&gt;Flow of motion compensation&lt;/h2&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;" vertex="1" parent="1">
+                    <mxGeometry x="110" y="-720" width="440" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="xhIgXT-_JEAYLQntgUyN-2" value="&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;Start MotionCompensate&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="365" y="-960" width="120" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="xhIgXT-_JEAYLQntgUyN-3" value="&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;Get macroblock index mx my&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="365" y="-850" width="120" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="xhIgXT-_JEAYLQntgUyN-4" value="&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;Compute start position for Y block&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="365" y="-760" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="xhIgXT-_JEAYLQntgUyN-5" value="&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;Copy Y macroblock&lt;/span&gt;&lt;br style=&quot;--tw-border-spacing-x: 0; --tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-gradient-from-position: ; --tw-gradient-via-position: ; --tw-gradient-to-position: ; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --tw-ring-color: rgb(59 130 246 / .5); --tw-ring-offset-shadow: 0 0 #0000; --tw-ring-shadow: 0 0 #0000; --tw-shadow: 0 0 #0000; --tw-shadow-colored: 0 0 #0000; --tw-blur: ; --tw-brightness: ; --tw-contrast: ; --tw-grayscale: ; --tw-hue-rotate: ; --tw-invert: ; --tw-saturate: ; --tw-sepia: ; --tw-drop-shadow: ; --tw-backdrop-blur: ; --tw-backdrop-brightness: ; --tw-backdrop-contrast: ; --tw-backdrop-grayscale: ; --tw-backdrop-hue-rotate: ; --tw-backdrop-invert: ; --tw-backdrop-opacity: ; --tw-backdrop-saturate: ; --tw-backdrop-sepia: ; --tw-contain-size: ; --tw-contain-layout: ; --tw-contain-paint: ; --tw-contain-style: ; box-sizing: border-box; border-width: 0px; border-style: solid; border-color: rgb(229, 231, 235); color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;using motion vector&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="380" y="-660" width="95" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="xhIgXT-_JEAYLQntgUyN-6" value="&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;Scale motion vector for chroma&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="365" y="-550" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="xhIgXT-_JEAYLQntgUyN-7" value="&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;Compute start position for U and V&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="365" y="-430" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="xhIgXT-_JEAYLQntgUyN-8" value="&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;Copy U and V blocks&lt;/span&gt;&lt;br style=&quot;--tw-border-spacing-x: 0; --tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-gradient-from-position: ; --tw-gradient-via-position: ; --tw-gradient-to-position: ; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --tw-ring-color: rgb(59 130 246 / .5); --tw-ring-offset-shadow: 0 0 #0000; --tw-ring-shadow: 0 0 #0000; --tw-shadow: 0 0 #0000; --tw-shadow-colored: 0 0 #0000; --tw-blur: ; --tw-brightness: ; --tw-contrast: ; --tw-grayscale: ; --tw-hue-rotate: ; --tw-invert: ; --tw-saturate: ; --tw-sepia: ; --tw-drop-shadow: ; --tw-backdrop-blur: ; --tw-backdrop-brightness: ; --tw-backdrop-contrast: ; --tw-backdrop-grayscale: ; --tw-backdrop-hue-rotate: ; --tw-backdrop-invert: ; --tw-backdrop-opacity: ; --tw-backdrop-saturate: ; --tw-backdrop-sepia: ; --tw-contain-size: ; --tw-contain-layout: ; --tw-contain-paint: ; --tw-contain-style: ; box-sizing: border-box; border-width: 0px; border-style: solid; border-color: rgb(229, 231, 235); color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;using scaled motion vector&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="365" y="-310" width="120" height="62" as="geometry"/>
+                </mxCell>
+                <mxCell id="xhIgXT-_JEAYLQntgUyN-9" value="&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;End MotionCompensate&lt;/span&gt;" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="365" y="-200" width="120" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="xhIgXT-_JEAYLQntgUyN-15" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="xhIgXT-_JEAYLQntgUyN-2" target="xhIgXT-_JEAYLQntgUyN-3">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="410" y="-270" as="sourcePoint"/>
+                        <mxPoint x="425" y="-850" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="xhIgXT-_JEAYLQntgUyN-16" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="xhIgXT-_JEAYLQntgUyN-3" target="xhIgXT-_JEAYLQntgUyN-4">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="435" y="-910" as="sourcePoint"/>
+                        <mxPoint x="435" y="-840" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="xhIgXT-_JEAYLQntgUyN-17" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="xhIgXT-_JEAYLQntgUyN-4" target="xhIgXT-_JEAYLQntgUyN-5">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="435" y="-800" as="sourcePoint"/>
+                        <mxPoint x="435" y="-750" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="xhIgXT-_JEAYLQntgUyN-18" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="xhIgXT-_JEAYLQntgUyN-5" target="xhIgXT-_JEAYLQntgUyN-6">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="435" y="-690" as="sourcePoint"/>
+                        <mxPoint x="438" y="-650" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="xhIgXT-_JEAYLQntgUyN-19" value="" style="endArrow=classic;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="xhIgXT-_JEAYLQntgUyN-6" target="xhIgXT-_JEAYLQntgUyN-7">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="427" y="-490" as="sourcePoint"/>
+                        <mxPoint x="424" y="-440" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="xhIgXT-_JEAYLQntgUyN-20" value="" style="endArrow=classic;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="xhIgXT-_JEAYLQntgUyN-7" target="xhIgXT-_JEAYLQntgUyN-8">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="435" y="-480" as="sourcePoint"/>
+                        <mxPoint x="435" y="-420" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="xhIgXT-_JEAYLQntgUyN-21" value="" style="endArrow=classic;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="xhIgXT-_JEAYLQntgUyN-8" target="xhIgXT-_JEAYLQntgUyN-9">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="435" y="-360" as="sourcePoint"/>
+                        <mxPoint x="435" y="-300" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+    <diagram id="hpptSZcd1HE1QiFK-jZe" name="Page-3">
+        <mxGraphModel dx="1647" dy="2044" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="5P4ncSZ3ILf5swV6uwHP-1" value="&lt;h2&gt;Flow of higher level&lt;/h2&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;" vertex="1" parent="1">
+                    <mxGeometry x="200" y="-1070" width="440" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="5P4ncSZ3ILf5swV6uwHP-2" value="&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;Start&amp;nbsp;&lt;/span&gt;" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="360" y="-1000" width="120" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="5P4ncSZ3ILf5swV6uwHP-3" value="&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;Initialize image objects&lt;/span&gt;&lt;br style=&quot;--tw-border-spacing-x: 0; --tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-gradient-from-position: ; --tw-gradient-via-position: ; --tw-gradient-to-position: ; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --tw-ring-color: rgb(59 130 246 / .5); --tw-ring-offset-shadow: 0 0 #0000; --tw-ring-shadow: 0 0 #0000; --tw-shadow: 0 0 #0000; --tw-shadow-colored: 0 0 #0000; --tw-blur: ; --tw-brightness: ; --tw-contrast: ; --tw-grayscale: ; --tw-hue-rotate: ; --tw-invert: ; --tw-saturate: ; --tw-sepia: ; --tw-drop-shadow: ; --tw-backdrop-blur: ; --tw-backdrop-brightness: ; --tw-backdrop-contrast: ; --tw-backdrop-grayscale: ; --tw-backdrop-hue-rotate: ; --tw-backdrop-invert: ; --tw-backdrop-opacity: ; --tw-backdrop-saturate: ; --tw-backdrop-sepia: ; --tw-contain-size: ; --tw-contain-layout: ; --tw-contain-paint: ; --tw-contain-style: ; box-sizing: border-box; border-width: 0px; border-style: solid; border-color: rgb(229, 231, 235); color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;Target Anchor Predicted&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="360" y="-930" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="5P4ncSZ3ILf5swV6uwHP-4" value="&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;Load frame 0 from YUV file&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="360" y="-850" width="120" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="5P4ncSZ3ILf5swV6uwHP-5" value="&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;Save frame 0 as predicted output&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="360" y="-800" width="120" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="5P4ncSZ3ILf5swV6uwHP-6" value="&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;Start time measurement&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="360" y="-750" width="120" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="5P4ncSZ3ILf5swV6uwHP-7" value="&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;Set frame index to 1&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="373" y="-700" width="95" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="5P4ncSZ3ILf5swV6uwHP-9" value="&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;More frames to process&lt;/span&gt;" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="385" y="-640" width="80" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="5P4ncSZ3ILf5swV6uwHP-10" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="5P4ncSZ3ILf5swV6uwHP-2" target="5P4ncSZ3ILf5swV6uwHP-3">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="400" y="-790" as="sourcePoint"/>
+                        <mxPoint x="450" y="-840" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="5P4ncSZ3ILf5swV6uwHP-11" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="5P4ncSZ3ILf5swV6uwHP-3" target="5P4ncSZ3ILf5swV6uwHP-4">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="430" y="-950" as="sourcePoint"/>
+                        <mxPoint x="430" y="-920" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="5P4ncSZ3ILf5swV6uwHP-14" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="5P4ncSZ3ILf5swV6uwHP-4" target="5P4ncSZ3ILf5swV6uwHP-5">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="430" y="-860" as="sourcePoint"/>
+                        <mxPoint x="430" y="-840" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="5P4ncSZ3ILf5swV6uwHP-15" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="5P4ncSZ3ILf5swV6uwHP-5" target="5P4ncSZ3ILf5swV6uwHP-6">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="550" y="-830" as="sourcePoint"/>
+                        <mxPoint x="540" y="-770" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="5P4ncSZ3ILf5swV6uwHP-16" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="5P4ncSZ3ILf5swV6uwHP-6" target="5P4ncSZ3ILf5swV6uwHP-7">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="430" y="-760" as="sourcePoint"/>
+                        <mxPoint x="430" y="-740" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="5P4ncSZ3ILf5swV6uwHP-18" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.504;entryY=-0.027;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="5P4ncSZ3ILf5swV6uwHP-7" target="5P4ncSZ3ILf5swV6uwHP-9">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="430" y="-710" as="sourcePoint"/>
+                        <mxPoint x="431" y="-690" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="5P4ncSZ3ILf5swV6uwHP-20" value="" style="endArrow=classic;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="5P4ncSZ3ILf5swV6uwHP-9" target="5P4ncSZ3ILf5swV6uwHP-28">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="650" y="-310" as="sourcePoint"/>
+                        <mxPoint x="280" y="-520" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="5P4ncSZ3ILf5swV6uwHP-21" value="yes" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="5P4ncSZ3ILf5swV6uwHP-20">
+                    <mxGeometry x="-0.2087" y="-1" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="5P4ncSZ3ILf5swV6uwHP-22" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="5P4ncSZ3ILf5swV6uwHP-9" target="5P4ncSZ3ILf5swV6uwHP-29">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="462" y="-592" as="sourcePoint"/>
+                        <mxPoint x="600" y="-540" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="5P4ncSZ3ILf5swV6uwHP-27" value="No" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="5P4ncSZ3ILf5swV6uwHP-22">
+                    <mxGeometry x="-0.0091" y="1" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="5P4ncSZ3ILf5swV6uwHP-28" value="&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;Update frame index&lt;/span&gt;&lt;br style=&quot;--tw-border-spacing-x: 0; --tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-gradient-from-position: ; --tw-gradient-via-position: ; --tw-gradient-to-position: ; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --tw-ring-color: rgb(59 130 246 / .5); --tw-ring-offset-shadow: 0 0 #0000; --tw-ring-shadow: 0 0 #0000; --tw-shadow: 0 0 #0000; --tw-shadow-colored: 0 0 #0000; --tw-blur: ; --tw-brightness: ; --tw-contrast: ; --tw-grayscale: ; --tw-hue-rotate: ; --tw-invert: ; --tw-saturate: ; --tw-sepia: ; --tw-drop-shadow: ; --tw-backdrop-blur: ; --tw-backdrop-brightness: ; --tw-backdrop-contrast: ; --tw-backdrop-grayscale: ; --tw-backdrop-hue-rotate: ; --tw-backdrop-invert: ; --tw-backdrop-opacity: ; --tw-backdrop-saturate: ; --tw-backdrop-sepia: ; --tw-contain-size: ; --tw-contain-layout: ; --tw-contain-paint: ; --tw-contain-style: ; box-sizing: border-box; border-width: 0px; border-style: solid; border-color: rgb(229, 231, 235); color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;soframe = frame number&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="220" y="-500" width="120" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="5P4ncSZ3ILf5swV6uwHP-29" value="&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;Stop time measurement&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="460" y="-510" width="120" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="5P4ncSZ3ILf5swV6uwHP-30" value="&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;Set previous frame as reference&lt;/span&gt;&lt;br style=&quot;--tw-border-spacing-x: 0; --tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-gradient-from-position: ; --tw-gradient-via-position: ; --tw-gradient-to-position: ; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --tw-ring-color: rgb(59 130 246 / .5); --tw-ring-offset-shadow: 0 0 #0000; --tw-ring-shadow: 0 0 #0000; --tw-shadow: 0 0 #0000; --tw-shadow-colored: 0 0 #0000; --tw-blur: ; --tw-brightness: ; --tw-contrast: ; --tw-grayscale: ; --tw-hue-rotate: ; --tw-invert: ; --tw-saturate: ; --tw-sepia: ; --tw-drop-shadow: ; --tw-backdrop-blur: ; --tw-backdrop-brightness: ; --tw-backdrop-contrast: ; --tw-backdrop-grayscale: ; --tw-backdrop-hue-rotate: ; --tw-backdrop-invert: ; --tw-backdrop-opacity: ; --tw-backdrop-saturate: ; --tw-backdrop-sepia: ; --tw-contain-size: ; --tw-contain-layout: ; --tw-contain-paint: ; --tw-contain-style: ; box-sizing: border-box; border-width: 0px; border-style: solid; border-color: rgb(229, 231, 235); color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;Target = Anchor&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="220" y="-420" width="120" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="5P4ncSZ3ILf5swV6uwHP-32" value="&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;Load current frame from YUV file&lt;/span&gt;&lt;br style=&quot;--tw-border-spacing-x: 0; --tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-gradient-from-position: ; --tw-gradient-via-position: ; --tw-gradient-to-position: ; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --tw-ring-color: rgb(59 130 246 / .5); --tw-ring-offset-shadow: 0 0 #0000; --tw-ring-shadow: 0 0 #0000; --tw-shadow: 0 0 #0000; --tw-shadow-colored: 0 0 #0000; --tw-blur: ; --tw-brightness: ; --tw-contrast: ; --tw-grayscale: ; --tw-hue-rotate: ; --tw-invert: ; --tw-saturate: ; --tw-sepia: ; --tw-drop-shadow: ; --tw-backdrop-blur: ; --tw-backdrop-brightness: ; --tw-backdrop-contrast: ; --tw-backdrop-grayscale: ; --tw-backdrop-hue-rotate: ; --tw-backdrop-invert: ; --tw-backdrop-opacity: ; --tw-backdrop-saturate: ; --tw-backdrop-sepia: ; --tw-contain-size: ; --tw-contain-layout: ; --tw-contain-paint: ; --tw-contain-style: ; box-sizing: border-box; border-width: 0px; border-style: solid; border-color: rgb(229, 231, 235); color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;into Anchor&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="220" y="-350" width="120" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="5P4ncSZ3ILf5swV6uwHP-33" value="" style="endArrow=classic;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="5P4ncSZ3ILf5swV6uwHP-30" target="5P4ncSZ3ILf5swV6uwHP-32">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="280" y="-360" as="sourcePoint"/>
+                        <mxPoint x="290" y="-410" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="5P4ncSZ3ILf5swV6uwHP-36" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="5P4ncSZ3ILf5swV6uwHP-28" target="5P4ncSZ3ILf5swV6uwHP-30">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="480" y="-320" as="sourcePoint"/>
+                        <mxPoint x="530" y="-370" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="5P4ncSZ3ILf5swV6uwHP-37" value="&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;Print total execution time&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="468" y="-430" width="120" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="5P4ncSZ3ILf5swV6uwHP-39" value="End" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="480" y="-350" width="120" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="5P4ncSZ3ILf5swV6uwHP-40" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="5P4ncSZ3ILf5swV6uwHP-29" target="5P4ncSZ3ILf5swV6uwHP-37">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="710" y="-340" as="sourcePoint"/>
+                        <mxPoint x="760" y="-390" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="5P4ncSZ3ILf5swV6uwHP-41" value="" style="endArrow=classic;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="5P4ncSZ3ILf5swV6uwHP-37" target="5P4ncSZ3ILf5swV6uwHP-39">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="570" y="-470" as="sourcePoint"/>
+                        <mxPoint x="570" y="-440" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="5P4ncSZ3ILf5swV6uwHP-43" value="&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;Perform motion estimation&lt;/span&gt;&lt;br style=&quot;--tw-border-spacing-x: 0; --tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-gradient-from-position: ; --tw-gradient-via-position: ; --tw-gradient-to-position: ; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --tw-ring-color: rgb(59 130 246 / .5); --tw-ring-offset-shadow: 0 0 #0000; --tw-ring-shadow: 0 0 #0000; --tw-shadow: 0 0 #0000; --tw-shadow-colored: 0 0 #0000; --tw-blur: ; --tw-brightness: ; --tw-contrast: ; --tw-grayscale: ; --tw-hue-rotate: ; --tw-invert: ; --tw-saturate: ; --tw-sepia: ; --tw-drop-shadow: ; --tw-backdrop-blur: ; --tw-backdrop-brightness: ; --tw-backdrop-contrast: ; --tw-backdrop-grayscale: ; --tw-backdrop-hue-rotate: ; --tw-backdrop-invert: ; --tw-backdrop-opacity: ; --tw-backdrop-saturate: ; --tw-backdrop-sepia: ; --tw-contain-size: ; --tw-contain-layout: ; --tw-contain-paint: ; --tw-contain-style: ; box-sizing: border-box; border-width: 0px; border-style: solid; border-color: rgb(229, 231, 235); color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;and motion compensation&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="220" y="-280" width="120" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="5P4ncSZ3ILf5swV6uwHP-44" value="&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;Compute PSNR between&lt;/span&gt;&lt;br style=&quot;--tw-border-spacing-x: 0; --tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-gradient-from-position: ; --tw-gradient-via-position: ; --tw-gradient-to-position: ; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --tw-ring-color: rgb(59 130 246 / .5); --tw-ring-offset-shadow: 0 0 #0000; --tw-ring-shadow: 0 0 #0000; --tw-shadow: 0 0 #0000; --tw-shadow-colored: 0 0 #0000; --tw-blur: ; --tw-brightness: ; --tw-contrast: ; --tw-grayscale: ; --tw-hue-rotate: ; --tw-invert: ; --tw-saturate: ; --tw-sepia: ; --tw-drop-shadow: ; --tw-backdrop-blur: ; --tw-backdrop-brightness: ; --tw-backdrop-contrast: ; --tw-backdrop-grayscale: ; --tw-backdrop-hue-rotate: ; --tw-backdrop-invert: ; --tw-backdrop-opacity: ; --tw-backdrop-saturate: ; --tw-backdrop-sepia: ; --tw-contain-size: ; --tw-contain-layout: ; --tw-contain-paint: ; --tw-contain-style: ; box-sizing: border-box; border-width: 0px; border-style: solid; border-color: rgb(229, 231, 235); color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;current and predicted frame&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="220" y="-210" width="120" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="5P4ncSZ3ILf5swV6uwHP-45" value="&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;Append predicted frame&lt;/span&gt;&lt;br style=&quot;--tw-border-spacing-x: 0; --tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-gradient-from-position: ; --tw-gradient-via-position: ; --tw-gradient-to-position: ; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --tw-ring-color: rgb(59 130 246 / .5); --tw-ring-offset-shadow: 0 0 #0000; --tw-ring-shadow: 0 0 #0000; --tw-shadow: 0 0 #0000; --tw-shadow-colored: 0 0 #0000; --tw-blur: ; --tw-brightness: ; --tw-contrast: ; --tw-grayscale: ; --tw-hue-rotate: ; --tw-invert: ; --tw-saturate: ; --tw-sepia: ; --tw-drop-shadow: ; --tw-backdrop-blur: ; --tw-backdrop-brightness: ; --tw-backdrop-contrast: ; --tw-backdrop-grayscale: ; --tw-backdrop-hue-rotate: ; --tw-backdrop-invert: ; --tw-backdrop-opacity: ; --tw-backdrop-saturate: ; --tw-backdrop-sepia: ; --tw-contain-size: ; --tw-contain-layout: ; --tw-contain-paint: ; --tw-contain-style: ; box-sizing: border-box; border-width: 0px; border-style: solid; border-color: rgb(229, 231, 235); color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;to output file&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="220" y="-140" width="120" height="50" as="geometry"/>
+                </mxCell>
+                <mxCell id="5P4ncSZ3ILf5swV6uwHP-46" value="&lt;span style=&quot;color: rgb(40, 37, 61); font-family: &amp;quot;Recursive Variable&amp;quot;, arial, sans-serif; font-size: 14px; text-wrap-mode: nowrap; background-color: rgb(237, 240, 253);&quot;&gt;Increase frame index&lt;/span&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+                    <mxGeometry x="425" y="-60" width="120" height="40" as="geometry"/>
+                </mxCell>
+                <mxCell id="5P4ncSZ3ILf5swV6uwHP-47" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="5P4ncSZ3ILf5swV6uwHP-32" target="5P4ncSZ3ILf5swV6uwHP-43">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="540" y="-270" as="sourcePoint"/>
+                        <mxPoint x="590" y="-320" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="5P4ncSZ3ILf5swV6uwHP-48" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="5P4ncSZ3ILf5swV6uwHP-43" target="5P4ncSZ3ILf5swV6uwHP-44">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="290" y="-290" as="sourcePoint"/>
+                        <mxPoint x="290" y="-270" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="5P4ncSZ3ILf5swV6uwHP-50" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="5P4ncSZ3ILf5swV6uwHP-44" target="5P4ncSZ3ILf5swV6uwHP-45">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="470" y="-230" as="sourcePoint"/>
+                        <mxPoint x="520" y="-280" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="5P4ncSZ3ILf5swV6uwHP-51" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="5P4ncSZ3ILf5swV6uwHP-45" target="5P4ncSZ3ILf5swV6uwHP-46">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="520" y="-110" as="sourcePoint"/>
+                        <mxPoint x="570" y="-160" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="5P4ncSZ3ILf5swV6uwHP-52" value="" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;edgeStyle=orthogonalEdgeStyle;curved=1;" edge="1" parent="1" source="5P4ncSZ3ILf5swV6uwHP-46" target="5P4ncSZ3ILf5swV6uwHP-9">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="480" y="-90" as="sourcePoint"/>
+                        <mxPoint x="830" y="-590" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="760" y="-40"/>
+                            <mxPoint x="760" y="-600"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
