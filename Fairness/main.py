@@ -10,7 +10,7 @@ Plots   : (1) MMF vs SNR   (2) MMF vs I_th   (3) MMF vs K
 """
 
 import numpy as np
-from scipy.optimize import minimize
+from scipy.optimize import linprog
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -41,6 +41,15 @@ K_RANGE        = [2, 3, 4, 5, 6]
 
 # Monte Carlo realizations per point
 N_REAL         = 200
+
+# SCA solver parameters
+P_MIN          = 1e-9
+SCA_MAX_ITER   = 35
+SCA_TOL        = 1e-5
+SCA_TRUST_INIT = 0.35
+SCA_TRUST_MIN  = 0.03
+SCA_TRUST_MAX  = 1.00
+SCA_DAMPING    = 0.70
 
 # I_th scaling factor for SNR sweep
 # I_th scales with Pt so the CR constraint does not dominate at high SNR.
@@ -115,6 +124,120 @@ def compute_sinr_sic(powers, h2, order, pu_power, h2_pu):
     return sinr
 
 # ════════════════════════════════════════════════════════════════════════════════
+#  SCA SOLVER  (successive convex approximation for MMF power allocation)
+# ════════════════════════════════════════════════════════════════════════════════
+def _finite_diff_jacobian(rate_fn, p):
+    """Numerical Jacobian dR/dp for the current SCA linearisation point."""
+    p = np.asarray(p, dtype=float)
+    r0 = np.asarray(rate_fn(p), dtype=float)
+    jac = np.zeros((len(r0), len(p)))
+    for i in range(len(p)):
+        step = max(1e-6, 1e-5 * max(abs(p[i]), 1.0))
+        p_hi = p.copy()
+        p_lo = p.copy()
+        p_hi[i] += step
+        p_lo[i] = max(P_MIN, p_lo[i] - step)
+        jac[:, i] = (np.asarray(rate_fn(p_hi)) - np.asarray(rate_fn(p_lo))) / (p_hi[i] - p_lo[i])
+    return r0, jac
+
+def _scale_to_feasible(p, A_power, b_power):
+    """Scale a positive initial vector until all linear power constraints hold."""
+    p = np.maximum(np.asarray(p, dtype=float), P_MIN)
+    scale = 1.0
+    for row, limit in zip(A_power, b_power):
+        used = float(np.dot(row, p))
+        if used > limit and used > 0:
+            scale = min(scale, 0.95 * limit / used)
+    return np.maximum(p * scale, P_MIN)
+
+def _sca_mmf_optimize(rate_fn, n_var, A_power, b_power, Pt, init_seed_offset=0):
+    """
+    Solve max min_k R_k(p) by SCA.
+    Each iteration replaces R_k(p) by its first-order approximation around
+    the current point and solves the resulting linear MMF subproblem.
+    """
+    A_power = np.asarray(A_power, dtype=float)
+    b_power = np.asarray(b_power, dtype=float)
+
+    best_rate = -np.inf
+    best_p = None
+
+    for trial in range(3):
+        rng = np.random.default_rng(init_seed_offset + trial)
+        p = rng.uniform(max(P_MIN, Pt * 0.05), max(P_MIN * 10, Pt * 0.8), n_var)
+        p = _scale_to_feasible(p, A_power, b_power)
+        trust = SCA_TRUST_INIT
+        prev_rate = float(np.min(rate_fn(p)))
+
+        for _ in range(SCA_MAX_ITER):
+            rates, jac = _finite_diff_jacobian(rate_fn, p)
+
+            # Variables are [p_0, ..., p_{n-1}, t], maximize t -> minimize -t.
+            c = np.zeros(n_var + 1)
+            c[-1] = -1.0
+
+            A_ub = []
+            b_ub = []
+
+            # Linearized MMF constraints: t <= R_k(p0) + grad_k @ (p - p0)
+            for k in range(len(rates)):
+                row = np.zeros(n_var + 1)
+                row[:n_var] = -jac[k]
+                row[-1] = 1.0
+                A_ub.append(row)
+                b_ub.append(float(rates[k] - np.dot(jac[k], p)))
+
+            for row_power, limit in zip(A_power, b_power):
+                row = np.zeros(n_var + 1)
+                row[:n_var] = row_power
+                A_ub.append(row)
+                b_ub.append(float(limit))
+
+            lower = np.maximum(P_MIN, p - trust * Pt)
+            upper = np.minimum(Pt, p + trust * Pt)
+            bounds = [(float(lo), float(hi)) for lo, hi in zip(lower, upper)]
+            bounds.append((0.0, None))
+
+            res = linprog(c, A_ub=np.asarray(A_ub), b_ub=np.asarray(b_ub),
+                          bounds=bounds, method='highs')
+            if not res.success:
+                trust *= 0.5
+                if trust < SCA_TRUST_MIN:
+                    break
+                continue
+
+            p_candidate = _scale_to_feasible(res.x[:n_var], A_power, b_power)
+            p_next = _scale_to_feasible(
+                SCA_DAMPING * p_candidate + (1.0 - SCA_DAMPING) * p,
+                A_power, b_power
+            )
+            curr_rate = float(np.min(rate_fn(p_next)))
+
+            if curr_rate + SCA_TOL < prev_rate:
+                trust *= 0.5
+                if trust < SCA_TRUST_MIN:
+                    break
+                continue
+
+            if abs(curr_rate - prev_rate) <= SCA_TOL * max(1.0, abs(prev_rate)):
+                p = p_next
+                prev_rate = curr_rate
+                break
+
+            p = p_next
+            prev_rate = curr_rate
+            trust = min(SCA_TRUST_MAX, trust * 1.15)
+
+        final_rate = float(np.min(rate_fn(p)))
+        if final_rate > best_rate:
+            best_rate = final_rate
+            best_p = p.copy()
+
+    if best_p is None:
+        return np.zeros(n_var), 0.0
+    return best_p, max(best_rate, 0.0)
+
+# ════════════════════════════════════════════════════════════════════════════════
 #  CR-RSMA   (1 common + 1 private per SU — MMF optimisation)
 # ════════════════════════════════════════════════════════════════════════════════
 def rsma_mmf(h2_su, h2_pu, g2_su, Pt, I_th):
@@ -151,36 +274,26 @@ def rsma_mmf(h2_su, h2_pu, g2_su, Pt, I_th):
             R[k] = rs[i + 1]
         return R
 
-    def neg_mmf(p):
-        return -np.min(user_rates(p))
+    A_power = []
+    b_power = []
 
-    # Constraints
-    cons = []
-    # split user total power ≤ Pt
-    cons.append({'type': 'ineq', 'fun': lambda p: Pt - p[0] - p[n_s - 1]})
-    # each non-split user ≤ Pt
+    row = np.zeros(n_s)
+    row[0] = 1.0
+    row[n_s - 1] = 1.0
+    A_power.append(row)
+    b_power.append(Pt)
+
     for i in range(1, K):
-        cons.append({'type': 'ineq', 'fun': lambda p, i=i: Pt - p[i]})
-    # interference constraint  Σ p_s * g2_s ≤ I_th
-    cons.append({'type': 'ineq', 'fun': lambda p: I_th - np.dot(p, g2_s)})
+        row = np.zeros(n_s)
+        row[i] = 1.0
+        A_power.append(row)
+        b_power.append(Pt)
 
-    bounds = [(1e-5, Pt)] * n_s
+    A_power.append(g2_s)
+    b_power.append(I_th)
 
-    # Multi-start
-    best_val, best_p = np.inf, None
-    for trial in range(3):
-        rng  = np.random.default_rng(trial)
-        p0   = rng.uniform(Pt * 0.1, Pt * 0.9, n_s)
-        p0[0]      = Pt * 0.5
-        p0[n_s-1]  = Pt * 0.5
-        res = minimize(neg_mmf, p0, method='SLSQP',
-                       bounds=bounds, constraints=cons,
-                       options={'maxiter': 200, 'ftol': 1e-6})
-        if res.fun < best_val:
-            best_val = res.fun
-            best_p   = res.x
-
-    mmf_rate = -best_val
+    _, mmf_rate = _sca_mmf_optimize(user_rates, n_s, A_power, b_power, Pt,
+                                    init_seed_offset=0)
     return max(mmf_rate, 0.0)
 
 # ════════════════════════════════════════════════════════════════════════════════
@@ -199,28 +312,18 @@ def noma_mmf(h2_su, h2_pu, g2_su, Pt, I_th):
         sinr = compute_sinr_sic(p, h2_su, order, pu_pow, h2_pu)
         return shannon_rate(sinr)
 
-    def neg_mmf(p):
-        return -np.min(user_rates(p))
-
-    cons = []
+    A_power = []
+    b_power = []
     for k in range(K):
-        cons.append({'type': 'ineq', 'fun': lambda p, k=k: Pt - p[k]})
-    cons.append({'type': 'ineq', 'fun': lambda p: I_th - np.dot(p, g2_su)})
+        row = np.zeros(K)
+        row[k] = 1.0
+        A_power.append(row)
+        b_power.append(Pt)
+    A_power.append(g2_su)
+    b_power.append(I_th)
 
-    bounds = [(1e-5, Pt)] * K
-
-    best_val, best_p = np.inf, None
-    for trial in range(3):
-        rng = np.random.default_rng(trial + 100)
-        p0  = rng.uniform(Pt * 0.1, Pt * 0.9, K)
-        res = minimize(neg_mmf, p0, method='SLSQP',
-                       bounds=bounds, constraints=cons,
-                       options={'maxiter': 200, 'ftol': 1e-6})
-        if res.fun < best_val:
-            best_val = res.fun
-            best_p   = res.x
-
-    mmf_rate = -best_val
+    _, mmf_rate = _sca_mmf_optimize(user_rates, K, A_power, b_power, Pt,
+                                    init_seed_offset=100)
     return max(mmf_rate, 0.0)
 
 # ════════════════════════════════════════════════════════════════════════════════
@@ -328,22 +431,26 @@ def _opt_rates_rsma(h2_su, h2_pu, g2_su, Pt, I_th):
             R[k] = rs[i + 1]
         return R
 
-    cons = [{'type': 'ineq', 'fun': lambda p: Pt - p[0] - p[n_s - 1]}]
-    for i in range(1, K):
-        cons.append({'type': 'ineq', 'fun': lambda p, i=i: Pt - p[i]})
-    cons.append({'type': 'ineq', 'fun': lambda p: I_th - np.dot(p, g2_s)})
-    bounds = [(1e-5, Pt)] * n_s
+    A_power = []
+    b_power = []
 
-    best_val, best_p = np.inf, None
-    for trial in range(3):
-        rng = np.random.default_rng(trial)
-        p0  = rng.uniform(Pt * 0.1, Pt * 0.9, n_s)
-        p0[0] = p0[n_s - 1] = Pt * 0.5
-        res = minimize(lambda p: -np.min(_rates(p)), p0, method='SLSQP',
-                       bounds=bounds, constraints=cons,
-                       options={'maxiter': 200, 'ftol': 1e-6})
-        if res.fun < best_val:
-            best_val, best_p = res.fun, res.x
+    row = np.zeros(n_s)
+    row[0] = 1.0
+    row[n_s - 1] = 1.0
+    A_power.append(row)
+    b_power.append(Pt)
+
+    for i in range(1, K):
+        row = np.zeros(n_s)
+        row[i] = 1.0
+        A_power.append(row)
+        b_power.append(Pt)
+
+    A_power.append(g2_s)
+    b_power.append(I_th)
+
+    best_p, _ = _sca_mmf_optimize(_rates, n_s, A_power, b_power, Pt,
+                                  init_seed_offset=0)
     return _rates(best_p) if best_p is not None else np.zeros(K)
 
 def _opt_rates_noma(h2_su, h2_pu, g2_su, Pt, I_th):
@@ -354,19 +461,18 @@ def _opt_rates_noma(h2_su, h2_pu, g2_su, Pt, I_th):
     def _rates(p):
         return shannon_rate(compute_sinr_sic(p, h2_su, order, P.Pp_max, h2_pu))
 
-    cons   = [{'type': 'ineq', 'fun': lambda p, k=k: Pt - p[k]} for k in range(K)]
-    cons.append({'type': 'ineq', 'fun': lambda p: I_th - np.dot(p, g2_su)})
-    bounds = [(1e-5, Pt)] * K
+    A_power = []
+    b_power = []
+    for k in range(K):
+        row = np.zeros(K)
+        row[k] = 1.0
+        A_power.append(row)
+        b_power.append(Pt)
+    A_power.append(g2_su)
+    b_power.append(I_th)
 
-    best_val, best_p = np.inf, None
-    for trial in range(3):
-        rng = np.random.default_rng(trial + 100)
-        p0  = rng.uniform(Pt * 0.1, Pt * 0.9, K)
-        res = minimize(lambda p: -np.min(_rates(p)), p0, method='SLSQP',
-                       bounds=bounds, constraints=cons,
-                       options={'maxiter': 200, 'ftol': 1e-6})
-        if res.fun < best_val:
-            best_val, best_p = res.fun, res.x
+    best_p, _ = _sca_mmf_optimize(_rates, K, A_power, b_power, Pt,
+                                  init_seed_offset=100)
     return _rates(best_p) if best_p is not None else np.zeros(K)
 
 def _mc_jfi(K, Pt, I_th, n_real):
