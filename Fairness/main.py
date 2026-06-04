@@ -37,7 +37,9 @@ SNR_DB_FIXED   = 20          # dB — fixed operating point
 ITH_RANGE      = np.linspace(0.05, 1.0, 15)
 
 # K sweep range (used in scenario 3)
-K_RANGE        = [2, 3, 4, 5, 6]
+K_RANGE        = [2, 3, 4]
+
+
 
 # Monte Carlo realizations per point
 N_REAL         = 200
@@ -314,11 +316,16 @@ def noma_mmf(h2_su, h2_pu, g2_su, Pt, I_th):
 
     A_power = []
     b_power = []
+    # Total power constraint: sum(p) <= Pt
+    A_power.append(np.ones(K))
+    b_power.append(Pt)
+    # Individual per-user limit (optional, but typical in NOMA)
     for k in range(K):
         row = np.zeros(K)
         row[k] = 1.0
         A_power.append(row)
         b_power.append(Pt)
+    # CR interference constraint
     A_power.append(g2_su)
     b_power.append(I_th)
 
@@ -327,11 +334,31 @@ def noma_mmf(h2_su, h2_pu, g2_su, Pt, I_th):
     return max(mmf_rate, 0.0)
 
 # ════════════════════════════════════════════════════════════════════════════════
+#  CR-OMA  (Orthogonal Multiple Access baseline)
+# ════════════════════════════════════════════════════════════════════════════════
+def oma_mmf(h2_su, h2_pu, g2_su, Pt, I_th):
+    """
+    OMA: orthogonal resource allocation with CR interference constraint.
+    Each user gets orthogonal time/frequency slot.
+    """
+    K = len(h2_su)
+    p = np.full(K, Pt / K)
+    
+    # Enforce CR interference constraint I_th
+    interf = np.dot(p, g2_su)
+    if interf > I_th:
+        p *= (I_th / interf) * 0.99  # Scale down to satisfy constraint
+    
+    sinr = p * h2_su / (P.Pp_max * h2_pu + P.sigma2)
+    rates = shannon_rate(sinr)
+    return max(float(np.min(rates)), 0.0)
+
+# ════════════════════════════════════════════════════════════════════════════════
 #  MONTE CARLO HELPERS
 # ════════════════════════════════════════════════════════════════════════════════
 def _mc_mmf(K, Pt, I_th, n_real):
-    """Returns (rsma_mmf_mean, noma_mmf_mean) averaged over n_real realisations."""
-    rsma_vals, noma_vals = [], []
+    """Returns (rsma_mmf_mean, noma_mmf_mean, oma_mmf_mean) averaged over n_real realisations."""
+    rsma_vals, noma_vals, oma_vals = [], [], []
     for r in range(n_real):
         h2_su, h2_pu, g2_su = generate_channels(K, seed=r * 1000 + int(Pt * 100))
         try:
@@ -342,7 +369,11 @@ def _mc_mmf(K, Pt, I_th, n_real):
             noma_vals.append(noma_mmf(h2_su, h2_pu, g2_su, Pt, I_th))
         except Exception:
             noma_vals.append(np.nan)
-    return np.nanmean(rsma_vals), np.nanmean(noma_vals)
+        try:
+            oma_vals.append(oma_mmf(h2_su, h2_pu, g2_su, Pt, I_th))
+        except Exception:
+            oma_vals.append(np.nan)
+    return np.nanmean(rsma_vals), np.nanmean(noma_vals), np.nanmean(oma_vals)
 
 # ════════════════════════════════════════════════════════════════════════════════
 #  SCENARIO 1 — MMF vs SNR
@@ -356,46 +387,49 @@ def sim_vs_snr(K=2, n_real=N_REAL):
     the CR interference constraint does not become the sole bottleneck
     at high SNR, giving a monotone increasing MMF curve.
     """
-    print(f"\n[1/3] MMF vs SNR  (K={K}, I_th scales with Pt, ratio={I_TH_RATIO:.4f}) ...")
-    rsma_r, noma_r = [], []
+    print(f"\n[1/3] Max-Min Fairness vs SNR  (K={K}, I_th scales with Pt) ...")
+    rsma_r, noma_r, oma_r = [], [], []
     for snr_dB in P.snr_dB_range:
         Pt    = 10 ** (snr_dB / 10)
         I_th  = I_TH_RATIO * Pt      # scale with transmit power
-        r, n  = _mc_mmf(K, Pt, I_th, n_real)
+        r, n, o  = _mc_mmf(K, Pt, I_th, n_real)
         rsma_r.append(r)
         noma_r.append(n)
-        print(f"   SNR={snr_dB:4.0f} dB | Pt={Pt:.3f} W | I_th={I_th:.4f} W | RSMA={r:.4f}  NOMA={n:.4f}")
-    return np.array(rsma_r), np.array(noma_r)
+        oma_r.append(o)
+        print(f"   SNR={snr_dB:4.0f} dB | RSMA={r:.4f}  NOMA={n:.4f}  OMA={o:.4f}")
+    return np.array(rsma_r), np.array(noma_r), np.array(oma_r)
 
 # ════════════════════════════════════════════════════════════════════════════════
 #  SCENARIO 2 — MMF vs I_th  (Cognitive Radio evaluation)
 #  Fixed: K=2, SNR=SNR_DB_FIXED
 # ════════════════════════════════════════════════════════════════════════════════
 def sim_vs_ith(K=2, n_real=N_REAL):
-    print(f"\n[2/3] MMF vs I_th  (K={K}, SNR={SNR_DB_FIXED} dB) ...")
+    print(f"\n[2/3] Max-Min Fairness vs I_th  (K={K}, SNR={SNR_DB_FIXED} dB) ...")
     Pt = 10 ** (SNR_DB_FIXED / 10)
-    rsma_r, noma_r = [], []
+    rsma_r, noma_r, oma_r = [], [], []
     for I_th_val in ITH_RANGE:
-        r, n = _mc_mmf(K, Pt, I_th_val, n_real)
+        r, n, o = _mc_mmf(K, Pt, I_th_val, n_real)
         rsma_r.append(r)
         noma_r.append(n)
-        print(f"   I_th={I_th_val:.3f} W | RSMA={r:.4f}  NOMA={n:.4f}")
-    return np.array(rsma_r), np.array(noma_r)
+        oma_r.append(o)
+        print(f"   I_th={I_th_val:.3f} W | RSMA={r:.4f}  NOMA={n:.4f}  OMA={o:.4f}")
+    return np.array(rsma_r), np.array(noma_r), np.array(oma_r)
 
 # ════════════════════════════════════════════════════════════════════════════════
 #  SCENARIO 3 — MMF vs K  (Number of Users)
 #  Fixed: SNR=SNR_DB_FIXED, I_th from config
 # ════════════════════════════════════════════════════════════════════════════════
 def sim_vs_K(n_real=N_REAL):
-    print(f"\n[3/3] MMF vs K  (SNR={SNR_DB_FIXED} dB, I_th={P.I_th:.2f} W) ...")
+    print(f"\n[3/3] Max-Min Fairness vs K  (SNR={SNR_DB_FIXED} dB, I_th={P.I_th:.2f} W) ...")
     Pt = 10 ** (SNR_DB_FIXED / 10)
-    rsma_r, noma_r = [], []
+    rsma_r, noma_r, oma_r = [], [], []
     for K in K_RANGE:
-        r, n = _mc_mmf(K, Pt, P.I_th, n_real)
+        r, n, o = _mc_mmf(K, Pt, P.I_th, n_real)
         rsma_r.append(r)
         noma_r.append(n)
-        print(f"   K={K} | RSMA={r:.4f}  NOMA={n:.4f}")
-    return np.array(rsma_r), np.array(noma_r)
+        oma_r.append(o)
+        print(f"   K={K} | RSMA={r:.4f}  NOMA={n:.4f}  OMA={o:.4f}")
+    return np.array(rsma_r), np.array(noma_r), np.array(oma_r)
 
 # ════════════════════════════════════════════════════════════════════════════════
 #  SCENARIO 4 helpers — SVC PSNR Mapping  (reuses Sc1 rate results)
@@ -578,6 +612,7 @@ def sim_equal_vs_snr(K=2, n_real=N_REAL):
 STYLE = {
     'rsma': dict(color='#1a6fbd', marker='o', linestyle='-',  linewidth=2.5, markersize=7),
     'noma': dict(color='#e05c00', marker='s', linestyle='--', linewidth=2.5, markersize=7),
+    'oma':  dict(color='#6b9f4a', marker='^', linestyle=':', linewidth=2.0, markersize=6),
 }
 
 def _style_ax(ax, xlabel, ylabel, title):
@@ -593,153 +628,78 @@ def _style_ax(ax, xlabel, ylabel, title):
 #  MAIN
 # ════════════════════════════════════════════════════════════════════════════════
 if __name__ == '__main__':
-    print("=" * 70)
-    print("  CR-RSMA vs CR-NOMA  |  MMF Simulation  |  SVC 4-Layer")
-    print(f"  Bandwidth : {P.B/1e3:.0f} kHz")
-    print(f"  η (path)  : {P.eta}")
-    print(f"  Pp_max    : {P.Pp_max} W   |  Ps_max : {P.Ps_max} W")
-    print(f"  w_p = {P.w_p}  |  w_s = {P.w_s}  (fairness weights)")
-    print(f"  SNR range : {P.snr_dB_range[0]}–{P.snr_dB_range[-1]} dB, step {int(P.snr_dB_range[1]-P.snr_dB_range[0])} dB")
+    print("\n" + "=" * 70)
+    print("  CR-RSMA vs CR-NOMA vs OMA Comparison")
     print("=" * 70)
 
     # ──────────────────────────────────────────────────────────────────────────
     # Scenarios 1–3  (original)
     # ──────────────────────────────────────────────────────────────────────────
-    rsma_snr, noma_snr = sim_vs_snr(K=2, n_real=N_REAL)
-    rsma_ith, noma_ith = sim_vs_ith(K=2, n_real=N_REAL)
-    rsma_K,   noma_K   = sim_vs_K(n_real=N_REAL)
-
-    # ──────────────────────────────────────────────────────────────────────────
-    # Scenario 4  — PSNR mapping (reuses Sc1 rate results, no extra Monte Carlo)
-    # ──────────────────────────────────────────────────────────────────────────
-    rsma_psnr = map_to_psnr(rsma_snr)
-    noma_psnr = map_to_psnr(noma_snr)
-
-    # ──────────────────────────────────────────────────────────────────────────
-    # Scenario 8  — Jain's Fairness Index
-    # ──────────────────────────────────────────────────────────────────────────
-    rsma_jfi_snr, noma_jfi_snr = sim_jfi_vs_snr(K=2, n_real=N_REAL)
-    rsma_jfi_K,   noma_jfi_K   = sim_jfi_vs_K(n_real=N_REAL)
-
-    # ──────────────────────────────────────────────────────────────────────────
-    # Scenario 11 — Equal-Power Baseline
-    # ──────────────────────────────────────────────────────────────────────────
-    rsma_eq, noma_eq = sim_equal_vs_snr(K=2, n_real=N_REAL)
+    rsma_snr, noma_snr, oma_snr = sim_vs_snr(K=2, n_real=N_REAL)
+    rsma_ith, noma_ith, oma_ith = sim_vs_ith(K=2, n_real=N_REAL)
+    rsma_K,   noma_K,   oma_K   = sim_vs_K(n_real=N_REAL)
 
     # Save all results
     np.savez('sim_results.npz',
              snr_range=P.snr_dB_range,
              ith_range=ITH_RANGE,
              K_range=np.array(K_RANGE),
-             rsma_snr=rsma_snr,     noma_snr=noma_snr,
-             rsma_ith=rsma_ith,     noma_ith=noma_ith,
-             rsma_K=rsma_K,         noma_K=noma_K,
-             rsma_psnr=rsma_psnr,   noma_psnr=noma_psnr,
-             rsma_jfi_snr=rsma_jfi_snr, noma_jfi_snr=noma_jfi_snr,
-             rsma_jfi_K=rsma_jfi_K,     noma_jfi_K=noma_jfi_K,
-             rsma_eq=rsma_eq,       noma_eq=noma_eq)
+             rsma_snr=rsma_snr,     noma_snr=noma_snr,     oma_snr=oma_snr,
+             rsma_ith=rsma_ith,     noma_ith=noma_ith,     oma_ith=oma_ith,
+             rsma_K=rsma_K,         noma_K=noma_K,         oma_K=oma_K)
     print("\n✓ Results saved to sim_results.npz")
 
     # ──────────────────────────────────────────────────────────────────────────
-    # FIGURE 1 — MMF vs SNR
+    # FIGURE 1 — Max-Min Fairness vs SNR
     # ──────────────────────────────────────────────────────────────────────────
-    fig1, ax1 = plt.subplots(figsize=(8, 5.5))
+    fig1, ax1 = plt.subplots(figsize=(9, 5.8))
     ax1.plot(P.snr_dB_range, rsma_snr, label='CR-RSMA', **STYLE['rsma'])
     ax1.plot(P.snr_dB_range, noma_snr, label='CR-NOMA', **STYLE['noma'])
-
-    # Shade the gain region
-    ax1.fill_between(P.snr_dB_range, noma_snr, rsma_snr,
-                     alpha=0.12, color='#1a6fbd', label='RSMA gain')
+    ax1.plot(P.snr_dB_range, oma_snr, label='OMA', **STYLE['oma'])
 
     _style_ax(ax1,
               xlabel='SNR (dB)',
-              ylabel='MMF  (min user rate, bps/Hz)',
-              title='CR-RSMA vs CR-NOMA: MMF vs SNR\n'
-                    f'(K=2, I_th={P.I_th} W, w_p=w_s={P.w_p})')
+              ylabel='Max-min fairness (bps/Hz)',
+              title='Performance Comparison vs SNR')
     plt.tight_layout()
     plt.savefig('fig1_mmf_vs_snr.png', dpi=P.dpi, bbox_inches='tight')
     print("  ✓ fig1_mmf_vs_snr.png")
     plt.close(fig1)
 
     # ──────────────────────────────────────────────────────────────────────────
-    # FIGURE 2 — MMF vs I_th  (Cognitive Radio evaluation)
+    # FIGURE 2 — Max-Min Fairness vs Interference Threshold
     # ──────────────────────────────────────────────────────────────────────────
-    fig2, ax2 = plt.subplots(figsize=(8, 5.5))
+    fig2, ax2 = plt.subplots(figsize=(9, 5.8))
     ax2.plot(ITH_RANGE, rsma_ith, label='CR-RSMA', **STYLE['rsma'])
     ax2.plot(ITH_RANGE, noma_ith, label='CR-NOMA', **STYLE['noma'])
-    ax2.fill_between(ITH_RANGE, noma_ith, rsma_ith,
-                     alpha=0.12, color='#1a6fbd', label='RSMA gain')
+    ax2.plot(ITH_RANGE, oma_ith, label='OMA', **STYLE['oma'])
 
     _style_ax(ax2,
-              xlabel='Interference Threshold  $I_{th}$ (W)',
-              ylabel='MMF  (min user rate, bps/Hz)',
-              title='Cognitive Radio Evaluation: MMF vs $I_{th}$\n'
-                    f'(K=2, SNR={SNR_DB_FIXED} dB, RSMA tận dụng phổ tốt hơn NOMA)')
+              xlabel='Interference Threshold $I_{th}$ (W)',
+              ylabel='Max-min fairness (bps/Hz)',
+              title='Cognitive Radio Evaluation vs Interference Limits')
     plt.tight_layout()
     plt.savefig('fig2_mmf_vs_ith.png', dpi=P.dpi, bbox_inches='tight')
     print("  ✓ fig2_mmf_vs_ith.png")
     plt.close(fig2)
 
     # ──────────────────────────────────────────────────────────────────────────
-    # FIGURE 3 — MMF vs K  (Number of Users)
+    # FIGURE 3 — Max-Min Fairness vs Number of Users
     # ──────────────────────────────────────────────────────────────────────────
-    fig3, ax3 = plt.subplots(figsize=(8, 5.5))
+    fig3, ax3 = plt.subplots(figsize=(9, 5.8))
     ax3.plot(K_RANGE, rsma_K, label='CR-RSMA', **STYLE['rsma'])
     ax3.plot(K_RANGE, noma_K, label='CR-NOMA', **STYLE['noma'])
-    ax3.fill_between(K_RANGE, noma_K, rsma_K,
-                     alpha=0.12, color='#1a6fbd', label='RSMA gain')
+    ax3.plot(K_RANGE, oma_K, label='OMA', **STYLE['oma'])
 
     _style_ax(ax3,
-              xlabel='Number of Secondary Users  $K$',
-              ylabel='MMF  (min user rate, bps/Hz)',
-              title='Scalability: MMF vs Number of Users K\n'
-                    f'(SNR={SNR_DB_FIXED} dB, I_th={P.I_th} W)')
+              xlabel='Number of Secondary Users $K$',
+              ylabel='Max-min fairness (bps/Hz)',
+              title='Scalability vs Number of Users')
     ax3.set_xticks(K_RANGE)
     plt.tight_layout()
     plt.savefig('fig3_mmf_vs_K.png', dpi=P.dpi, bbox_inches='tight')
     print("  ✓ fig3_mmf_vs_K.png")
     plt.close(fig3)
-
-    # ──────────────────────────────────────────────────────────────────────────
-    # FIGURE 4 — Combined 1×3 panel (thesis-ready)
-    # ──────────────────────────────────────────────────────────────────────────
-    fig4 = plt.figure(figsize=(17, 5))
-    gs   = gridspec.GridSpec(1, 3, figure=fig4, wspace=0.38)
-
-    # Panel (a) — vs SNR
-    a1 = fig4.add_subplot(gs[0, 0])
-    a1.plot(P.snr_dB_range, rsma_snr, label='CR-RSMA', **STYLE['rsma'])
-    a1.plot(P.snr_dB_range, noma_snr, label='CR-NOMA', **STYLE['noma'])
-    a1.fill_between(P.snr_dB_range, noma_snr, rsma_snr, alpha=0.12, color='#1a6fbd')
-    _style_ax(a1, 'SNR (dB)', 'MMF (bps/Hz)',
-              f'(a) vs SNR  (K=2, $I_{{th}}$={P.I_th}W)')
-
-    # Panel (b) — vs I_th
-    a2 = fig4.add_subplot(gs[0, 1])
-    a2.plot(ITH_RANGE, rsma_ith, label='CR-RSMA', **STYLE['rsma'])
-    a2.plot(ITH_RANGE, noma_ith, label='CR-NOMA', **STYLE['noma'])
-    a2.fill_between(ITH_RANGE, noma_ith, rsma_ith, alpha=0.12, color='#1a6fbd')
-    _style_ax(a2, '$I_{th}$ (W)', 'MMF (bps/Hz)',
-              f'(b) vs $I_{{th}}$  (K=2, SNR={SNR_DB_FIXED}dB)')
-
-    # Panel (c) — vs K
-    a3 = fig4.add_subplot(gs[0, 2])
-    a3.plot(K_RANGE, rsma_K, label='CR-RSMA', **STYLE['rsma'])
-    a3.plot(K_RANGE, noma_K, label='CR-NOMA', **STYLE['noma'])
-    a3.fill_between(K_RANGE, noma_K, rsma_K, alpha=0.12, color='#1a6fbd')
-    _style_ax(a3, 'Number of Users K', 'MMF (bps/Hz)',
-              f'(c) vs K  (SNR={SNR_DB_FIXED}dB)')
-    a3.set_xticks(K_RANGE)
-
-    fig4.suptitle(
-        'CR-RSMA vs CR-NOMA  —  Max–Min Fairness (MMF) Performance\n'
-        f'SVC 4-Layer | QCIF 30fps | B={int(P.B/1e3)}kHz | η={P.eta} | '
-        f'$P_{{p,max}}=P_{{s,max}}={P.Pp_max}$W | $w_p=w_s={P.w_p}$',
-        fontsize=12, fontweight='bold', y=1.02)
-
-    plt.savefig('fig4_combined.png', dpi=P.dpi, bbox_inches='tight')
-    print("  ✓ fig4_combined.png")
-    plt.close(fig4)
 
     # ──────────────────────────────────────────────────────────────────────────
     # Summary
@@ -750,128 +710,5 @@ if __name__ == '__main__':
     print("    fig1_mmf_vs_snr.png")
     print("    fig2_mmf_vs_ith.png")
     print("    fig3_mmf_vs_K.png")
-    print("    fig4_combined.png")
     print("    sim_results.npz")
-    print("=" * 70)
-
-    # ══════════════════════════════════════════════════════════════════════════
-    # NEW FIGURES  (Scenarios 4, 8, 11)
-    # ══════════════════════════════════════════════════════════════════════════
-
-    # ──────────────────────────────────────────────────────────────────────────
-    # FIGURE 5 — Sc4: MMF Rate → PSNR (QoE Mapping)
-    # ──────────────────────────────────────────────────────────────────────────
-    fig5, ax5 = plt.subplots(figsize=(8, 5.5))
-    ax5.plot(P.snr_dB_range, rsma_psnr, label='CR-RSMA', **STYLE['rsma'])
-    ax5.plot(P.snr_dB_range, noma_psnr, label='CR-NOMA', **STYLE['noma'])
-    ax5.fill_between(P.snr_dB_range, noma_psnr, rsma_psnr,
-                     alpha=0.12, color='#1a6fbd', label='RSMA gain')
-
-    # Horizontal SVC layer reference lines
-    layer_labels = ['BL (29.87 dB)', 'EL1 (33.17 dB)',
-                    'EL2 (36.98 dB)', 'EL3 (41.19 dB)']
-    for psnr_val, lbl in zip(LAYER_PSNR, layer_labels):
-        ax5.axhline(psnr_val, color='grey', linewidth=0.9,
-                    linestyle=':', alpha=0.7)
-        ax5.text(P.snr_dB_range[-1] + 0.3, psnr_val, lbl,
-                 fontsize=8, va='center', color='grey')
-
-    ax5.set_xlim(P.snr_dB_range[0], P.snr_dB_range[-1] + 3)
-    ax5.set_ylabel('PSNR (dB)', fontsize=12, fontweight='bold')
-    ax5.set_xlabel('SNR (dB)', fontsize=12, fontweight='bold')
-    ax5.set_title('Sc4 — QoE Mapping: MMF Rate → SVC PSNR\n'
-                  f'(K=2, I_th scales with Pt, ratio={I_TH_RATIO:.4f})',
-                  fontsize=13, fontweight='bold', pad=8)
-    ax5.grid(True, alpha=0.35, linestyle='--')
-    ax5.legend(fontsize=11, framealpha=0.92, loc='upper left')
-    ax5.tick_params(labelsize=11)
-    plt.tight_layout()
-    plt.savefig('fig5_psnr_qoe.png', dpi=P.dpi, bbox_inches='tight')
-    print("  ✓ fig5_psnr_qoe.png")
-    plt.close(fig5)
-
-    # ──────────────────────────────────────────────────────────────────────────
-    # FIGURE 6 — Sc8: Jain's Fairness Index  (1×2 panel)
-    # ──────────────────────────────────────────────────────────────────────────
-    fig6, (b1, b2) = plt.subplots(1, 2, figsize=(13, 5))
-
-    # Panel (a) — JFI vs SNR
-    b1.plot(P.snr_dB_range, rsma_jfi_snr, label='CR-RSMA', **STYLE['rsma'])
-    b1.plot(P.snr_dB_range, noma_jfi_snr, label='CR-NOMA', **STYLE['noma'])
-    b1.fill_between(P.snr_dB_range, noma_jfi_snr, rsma_jfi_snr,
-                    alpha=0.12, color='#1a6fbd')
-    b1.axhline(1.0, color='green', linewidth=1.0, linestyle=':', alpha=0.7,
-               label='Perfect fairness (JFI=1)')
-    _style_ax(b1,
-              xlabel='SNR (dB)',
-              ylabel="Jain's Fairness Index",
-              title="(a) JFI vs SNR  (K=2)")
-    b1.set_ylim(0, 1.05)
-
-    # Panel (b) — JFI vs K
-    b2.plot(K_RANGE, rsma_jfi_K, label='CR-RSMA', **STYLE['rsma'])
-    b2.plot(K_RANGE, noma_jfi_K, label='CR-NOMA', **STYLE['noma'])
-    b2.fill_between(K_RANGE, noma_jfi_K, rsma_jfi_K,
-                    alpha=0.12, color='#1a6fbd')
-    b2.axhline(1.0, color='green', linewidth=1.0, linestyle=':', alpha=0.7,
-               label='Perfect fairness (JFI=1)')
-    _style_ax(b2,
-              xlabel='Number of Secondary Users  $K$',
-              ylabel="Jain's Fairness Index",
-              title=f"(b) JFI vs K  (SNR={SNR_DB_FIXED} dB)")
-    b2.set_ylim(0, 1.05)
-    b2.set_xticks(K_RANGE)
-
-    fig6.suptitle("Sc8 — Jain's Fairness Index: CR-RSMA vs CR-NOMA",
-                  fontsize=13, fontweight='bold', y=1.02)
-    plt.tight_layout()
-    plt.savefig('fig6_jains_fairness.png', dpi=P.dpi, bbox_inches='tight')
-    print("  ✓ fig6_jains_fairness.png")
-    plt.close(fig6)
-
-    # ──────────────────────────────────────────────────────────────────────────
-    # FIGURE 7 — Sc11: Optimization Gain vs Equal-Power Baseline
-    # ──────────────────────────────────────────────────────────────────────────
-    STYLE_EQ_R = dict(color='#6aaed6', marker='^', linestyle='--',
-                      linewidth=1.8, markersize=6, alpha=0.85)
-    STYLE_EQ_N = dict(color='#fda56e', marker='v', linestyle='--',
-                      linewidth=1.8, markersize=6, alpha=0.85)
-
-    fig7, ax7 = plt.subplots(figsize=(9, 5.5))
-    ax7.plot(P.snr_dB_range, rsma_snr, label='CR-RSMA (optimized)', **STYLE['rsma'])
-    ax7.plot(P.snr_dB_range, noma_snr, label='CR-NOMA (optimized)', **STYLE['noma'])
-    ax7.plot(P.snr_dB_range, rsma_eq,  label='CR-RSMA (equal power)', **STYLE_EQ_R)
-    ax7.plot(P.snr_dB_range, noma_eq,  label='CR-NOMA (equal power)', **STYLE_EQ_N)
-
-    # Shade optimization gains
-    ax7.fill_between(P.snr_dB_range, rsma_eq, rsma_snr,
-                     alpha=0.13, color='#1a6fbd', label='RSMA opt. gain')
-    ax7.fill_between(P.snr_dB_range, noma_eq, noma_snr,
-                     alpha=0.13, color='#e05c00', label='NOMA opt. gain')
-
-    _style_ax(ax7,
-              xlabel='SNR (dB)',
-              ylabel='MMF  (min user rate, bps/Hz)',
-              title='Sc11 — Optimization Gain vs Equal-Power Baseline\n'
-                    f'(K=2, I_th scales with Pt)')
-    ax7.legend(fontsize=10, framealpha=0.92, loc='upper left', ncol=2)
-    plt.tight_layout()
-    plt.savefig('fig7_equal_power_baseline.png', dpi=P.dpi, bbox_inches='tight')
-    print("  ✓ fig7_equal_power_baseline.png")
-    plt.close(fig7)
-
-    # ──────────────────────────────────────────────────────────────────────────
-    # Final summary
-    # ──────────────────────────────────────────────────────────────────────────
-    print("\n" + "=" * 70)
-    print("  All simulations complete.")
-    print("  Output files:")
-    print("    fig1_mmf_vs_snr.png          (Sc1: MMF vs SNR)")
-    print("    fig2_mmf_vs_ith.png          (Sc2: MMF vs I_th)")
-    print("    fig3_mmf_vs_K.png            (Sc3: MMF vs K)")
-    print("    fig4_combined.png            (Sc1–3 combined panel)")
-    print("    fig5_psnr_qoe.png            (Sc4: PSNR QoE mapping)")
-    print("    fig6_jains_fairness.png      (Sc8: Jain's Fairness Index)")
-    print("    fig7_equal_power_baseline.png(Sc11: vs Equal-Power baseline)")
-    print("    sim_results.npz              (all numerical results)")
     print("=" * 70)
