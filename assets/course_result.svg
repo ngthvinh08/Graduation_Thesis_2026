@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1641" height="33" viewBox="0 0 1641 33" role="img" aria-labelledby="title desc">
+  <title id="title">Ket qua hoc phan ELT 4053</title>
+  <desc id="desc">Hang ket qua the hien hoc phan ELT 4053 - Khoa luan tot nghiep, 7 tin chi, diem 8.6, diem chu A, GPA 3.7.</desc>
+  <rect width="1641" height="33" fill="#f5f5f5"/>
+  <g fill="#ffffff" stroke="#c9c9c9" stroke-width="1">
+    <rect x="0" y="3" width="88" height="27"/>
+    <rect x="88" y="3" width="183" height="27"/>
+    <rect x="271" y="3" width="547" height="27"/>
+    <rect x="818" y="3" width="92" height="27"/>
+    <rect x="910" y="3" width="184" height="27"/>
+    <rect x="1094" y="3" width="181" height="27"/>
+    <rect x="1275" y="3" width="183" height="27"/>
+    <rect x="1458" y="3" width="183" height="27"/>
+  </g>
+  <g font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#000000" dominant-baseline="middle">
+    <text x="44" y="17" text-anchor="middle">2</text>
+    <text x="103" y="17">ELT 4053</text>
+    <text x="280" y="17">Khóa luận tốt nghiệp</text>
+    <text x="864" y="17" text-anchor="middle">7</text>
+    <text x="1002" y="17" text-anchor="middle">8.6</text>
+    <text x="1185" y="17" text-anchor="middle">A</text>
+    <text x="1368" y="17" text-anchor="middle">3.7</text>
+  </g>
+  <g transform="translate(1547 10)">
+    <rect x="0" y="0" width="12" height="12" fill="#ffffff" stroke="#222" stroke-width="0.7"/>
+    <rect x="2" y="-3" width="10" height="12" fill="#ffffff" stroke="#222" stroke-width="0.7"/>
+    <rect x="3" y="-2" width="8" height="2" fill="#1f4fd8"/>
+    <rect x="4" y="1" width="2" height="2" fill="#f0d230"/>
+    <rect x="7" y="1" width="2" height="2" fill="#f0d230"/>
+    <rect x="4" y="4" width="2" height="2" fill="#f0d230"/>
+    <rect x="7" y="4" width="2" height="2" fill="#f0d230"/>
+    <path d="M0 12 L12 0" stroke="#222" stroke-width="1"/>
+    <path d="M-1 13 L11 1" stroke="#f5d000" stroke-width="2"/>
+    <path d="M-1 13 L11 1" stroke="#222" stroke-width="0.6"/>
+  </g>
+</svg>
